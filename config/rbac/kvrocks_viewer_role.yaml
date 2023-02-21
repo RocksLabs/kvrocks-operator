@@ -1,0 +1,20 @@
+# permissions for end users to view kvrocks.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kvrocks-viewer-role
+rules:
+- apiGroups:
+  - kvrocks.com
+  resources:
+  - kvrocks
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - kvrocks.com
+  resources:
+  - kvrocks/status
+  verbs:
+  - get

@@ -1,0 +1,19 @@
+domain: kvrocks.com
+layout:
+- go.kubebuilder.io/v3
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: kvrocks-operator
+repo: github.com/KvrocksLabs/kvrocks-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: kvrocks.com
+  group: kvrocks.com
+  kind: KVRocks
+  path: github.com/KvrocksLabs/kvrocks-operator/api/v1alpha1
+  version: v1alpha1
+version: "3"
