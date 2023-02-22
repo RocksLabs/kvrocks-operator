@@ -10,10 +10,7 @@ metadata:
    finalizers:
       - kvrocks/finalizer
    labels:
-      app.kubernetes.io/kind: KVRocks
-      kvrocks/monitored-by: sentinel-1
-      kvrocks/name: kvrocks-cluster-1-demo
-      kvrocks/system: gt
+      kvrocks/system: xxx
    name: kvrocks-cluster-1-demo
    namespace: kvrocks
 spec:
