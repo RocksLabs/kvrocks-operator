@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"sync"
 	"time"
@@ -164,13 +165,13 @@ func (r *KVRocksReconciler) SetupWithManager(mgr ctrl.Manager, maxConcurrentReco
 // checkSpecification Check if the field is correct
 // 1. Password must be set
 // 2. Replicas must be greater than 0, must be greater than 2 in sentinel mode, and must be odd
-// 3. storage cannot be empty
 func checkSpecification(instance *kvrocksv1alpha1.KVRocks, log logr.Logger, k8sClient *k8s.Client) error {
 	ok, reason := resources.ValidateKVRocks(instance, log)
 	if !ok {
 		instance.Status.Status = kvrocksv1alpha1.StatusFailed
 		instance.Status.Reason = *reason
-		return k8sClient.UpdateKVRocks(instance)
+		_ = k8sClient.UpdateKVRocks(instance)
+		return fmt.Errorf("field is unreasonable error: %s", *reason)
 	}
 	return nil
 }

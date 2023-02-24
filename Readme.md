@@ -22,6 +22,27 @@ consists of four parts
 4. kvrocks cluster name
 ```
 
+### Deploy
+
+1. Install OpenKruise
+2. Create ns kvrocks
+3. helm install kvrocks-crd deploy/crd -n kvrocks
+4. helm install kvrocks-operator deploy/operator -n kvrocks
+
+### Test
+
+1. standard:
+   - kubectl apply -f kubectl apply -f examples/standard.yaml
+2. cluster:
+   - kubectl apply -f examples/cluster.yaml
+
+```text
+The default data is not persistent, if you want to persist the data, please modify the following fields of the case:
+  storage:
+    size: 32Gi
+    class: xxxxx # storage class
+```
+
 ### Notice
 
 ```text

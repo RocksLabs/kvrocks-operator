@@ -21,6 +21,8 @@ import (
 	"os"
 
 	"go.uber.org/zap/zapcore"
+	v1 "k8s.io/api/core/v1"
+
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -55,12 +57,14 @@ func main() {
 	var enableLeaderElection bool
 	var probeAddr string
 	var maxConcurrentReconciles int
+	var managerNamespace string
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.IntVar(&maxConcurrentReconciles, "max-concurrent-reconciles", 1, "The number of maximum concurrent reconciles.")
+	flag.StringVar(&managerNamespace, "manager-namespace", v1.NamespaceAll, "manage namespace")
 	opts := zap.Options{
 		Development: true,
 		Level:       zapcore.InfoLevel,
@@ -77,6 +81,7 @@ func main() {
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "6bbbd80a.kvrocks.com",
+		Namespace:              managerNamespace,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")

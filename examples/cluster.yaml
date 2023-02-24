@@ -6,7 +6,7 @@ metadata:
   labels:
     kvrocks/system: xx
 spec:
-  image: apache/kvrocks # kvrocks image
+  image: apache/kvrocks:2.3.0 # kvrocks image
   imagePullPolicy: IfNotPresent
   master: 3
   replicas: 3
@@ -40,9 +40,9 @@ spec:
     rocksdb.compression: "no"
     rocksdb.wal_ttl_seconds: "0"
     rocksdb.wal_size_limit_mb: "0"
-  storage:
-    size: 32Gi
-    class: openebs-hostpath # storage class
+#  storage:
+#    size: 32Gi
+#    class: xxxxx # storage class
 #  nodeSelector:
 #    role: kvrocks
   toleration:

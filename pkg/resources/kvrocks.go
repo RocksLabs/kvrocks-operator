@@ -25,7 +25,6 @@ const SentinelImage = "redis:6.2.4"
 var (
 	ErrorPasswordEmpty        = "passworUnreasonable"
 	ErrorReplicasUnreasonable = "replicasUnreasonable"
-	ErrorStorageClassNULL     = "storageUnreasonable"
 	ErrorResourcesNULL        = "resourcesUnreasonable"
 )
 
@@ -33,10 +32,6 @@ func ValidateKVRocks(instance *kvrocksv1alpha1.KVRocks, log logr.Logger) (bool, 
 	if instance.Spec.Password == "" {
 		log.Error(errors.New(ErrorPasswordEmpty), "password can not be blank")
 		return false, &ErrorPasswordEmpty
-	}
-	if instance.Spec.Storage == nil && instance.Spec.Type != kvrocksv1alpha1.SentinelType {
-		log.Error(errors.New(ErrorStorageClassNULL), "storage must be not empty")
-		return false, &ErrorReplicasUnreasonable
 	}
 	if instance.Spec.Resources == nil {
 		log.Error(errors.New(ErrorResourcesNULL), "resources must be not empty")
@@ -56,6 +51,7 @@ func ValidateKVRocks(instance *kvrocksv1alpha1.KVRocks, log logr.Logger) (bool, 
 	case kvrocksv1alpha1.ClusterType:
 		if instance.Spec.Master < 3 {
 			log.Error(errors.New(ErrorReplicasUnreasonable), "master must be greater than 3")
+			return false, &ErrorReplicasUnreasonable
 		}
 	}
 	return true, nil
