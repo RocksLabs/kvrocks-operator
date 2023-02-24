@@ -33,7 +33,9 @@ func (e *event) producer() {
 				Name:      pod.Name,
 			}
 			if _, ok := e.producerSentinels[key.String()]; !ok {
+				e.lock.Lock()
 				e.producerSentinels[key.String()] = e.sentDownMessage
+				e.lock.Unlock()
 				e.producerSentinels[key.String()](&produceMessage{
 					ip:       pod.Status.PodIP,
 					password: sentinel.Spec.Password,
