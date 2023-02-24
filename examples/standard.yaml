@@ -1,13 +1,13 @@
 apiVersion: kvrocks.com/v1alpha1
 kind: KVRocks
 metadata:
-  name: kvrocks-standard-2-demo
-  namespace: test-kvrocks
+  name: kvrocks-standard-1-demo
+  namespace: kvrocks
   labels:
     kvrocks/system: xx
 spec:
-  image: xxx # kvrocks image
-  imagePullPolicy: IfNotPresent
+  image: apache/kvrocks
+  imagePullPolicy: Always
   master: 1
   replicas: 3
   type: standard
@@ -42,7 +42,7 @@ spec:
     rocksdb.wal_size_limit_mb: "0"
   storage:
     size: 32Gi
-    class: xxx # storage class
+    class: openebs-hostpath # storage class
 #  nodeSelector:
 #    role: kvrocks
   toleration:

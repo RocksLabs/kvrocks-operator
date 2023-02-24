@@ -50,7 +50,7 @@ const (
 	start = `
 #!/bin/bash
 sleep 15
-kvrocks -c /conf/kvrocks.conf
+./bin/kvrocks -c /conf/kvrocks.conf
 `
 
 	readinessProbe = `

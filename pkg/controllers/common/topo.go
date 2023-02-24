@@ -9,6 +9,9 @@ import (
 )
 
 func (h *CommandHandler) EnsureTopo() (bool, error) {
+	if h.instance.Status.Rebalance {
+		return false, nil
+	}
 	topoMsg := ""
 	for _, sts := range h.instance.Status.Topo {
 		for _, node := range sts.Topology {

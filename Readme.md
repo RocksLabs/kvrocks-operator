@@ -1,6 +1,33 @@
 
 # KVRocksOperator
 
+## Getting Start
+
+```text
+Please rebuild the kvrocks image, you need to install the redis-cli command tool.
+```
+
+```dockerfile
+FROM kvrocks:2.3.0
+RUN apt update && apt install -y redis-server
+```
+
+```text
+Note the naming rules of kvrocks
+kvrocks-cluster-1-demo
+consists of four parts
+1. kvrocks logo
+2. cluster|standard|sentinel
+3. Indicate the sentinel cluster to be used. In this case, the sentinel cluster is: sentinel-1
+4. kvrocks cluster name
+```
+
+### Notice
+
+```text
+Since kvrocks slot migration does not support migration operations, scaling will be slow (because slots need to be migrated one by one)
+```
+
 ## Introduction to CR
 
 ```yaml
