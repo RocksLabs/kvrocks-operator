@@ -32,7 +32,7 @@ consists of four parts
 ### Test
 
 1. standard:
-   - kubectl apply -f kubectl apply -f examples/standard.yaml
+   - kubectl apply -f examples/standard.yaml
 2. cluster:
    - kubectl apply -f examples/cluster.yaml
 
