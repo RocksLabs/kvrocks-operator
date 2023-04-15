@@ -7,7 +7,7 @@ metadata:
     kvrocks/system: gt
 spec:
   image: apache/kvrocks:2.3.0
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   master: 1
   replicas: 3
   type: standard
