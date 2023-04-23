@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 // Package v1alpha1 contains API Schema definitions for the kvrocks.com v1alpha1 API group
-//+kubebuilder:object:generate=true
-//+groupName=kvrocks.com
+// +kubebuilder:object:generate=true
+// +groupName=kvrocks.com
 package v1alpha1
 
 import (
