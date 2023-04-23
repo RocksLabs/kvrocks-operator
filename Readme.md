@@ -283,3 +283,12 @@ status:
    - Sentinel monitors the master node of each partition
    - Check the cluster information topo relationship for each pod, if it is incorrect, refresh the topo organization
    - If +odown receives the message, it will refresh the cluster topo structure (note that slaveof no one operation is not allowed in cluster mode, that is to say, sentinel will not fail over the partition, but will only detect it)
+
+
+## Development Guide
+
+**NOTE! The development guide is not yet complete, feel free to ask us any questions through [issues](https://github.com/KvrocksLabs/kvrocks-operator/issues) or [pull requests](https://github.com/KvrocksLabs/kvrocks-operator/pulls).**
+
+
+Please refer to the [Development Guide](/docs/development.md) for more information.
+
