@@ -129,11 +129,11 @@ run: manifests generate fmt vet ## Run a controller from your host.
 
 .PHONY: docker-build
 docker-build: test buildx ## Build docker image with the manager.
-	docker buildx build --build-arg USE_VENDOR=false -t ${IMG} . --load
+	docker buildx build --build-arg USE_VENDOR=Disabled -t ${IMG} . --load
 
 .PHONY: docker-build-vendor
 docker-build-vendor: test buildx vendor
-	docker buildx build --build-arg USE_VENDOR=true -t ${IMG} . --load
+	docker buildx build --build-arg USE_VENDOR=Enabled -t ${IMG} . --load
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.

@@ -1,4 +1,4 @@
-ARG USE_VENDOR=false
+ARG USE_VENDOR=Disabled
 
 # Build the manager binary
 FROM golang:1.17 as builder
@@ -17,12 +17,12 @@ COPY pkg/ pkg/
 COPY vendor* vendor/
 
 
-FROM builder as vendor-true
+FROM builder as vendor-Enabled
 ARG TARGETARCH
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -mod=vendor -a -o manager main.go
 
-FROM builder as vendor-false
+FROM builder as vendor-Disabled
 ARG TARGETARCH
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -a -o manager main.go
