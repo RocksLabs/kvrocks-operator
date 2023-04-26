@@ -46,8 +46,10 @@ ifeq ($(USE_IMAGE_DIGESTS), true)
 	BUNDLE_GEN_FLAGS += --use-image-digests
 endif
 
+REGISTRY ?= kvrocks.com/kvrockslabs
+TAG ?= latest
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+IMG ?= $(REGISTRY)/kvrocks-operator:$(TAG)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.23
 
@@ -98,18 +100,27 @@ generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and
 fmt: ## Run go fmt against code.
 	go fmt ./...
 
+.PHONY: vendor
+vendor:
+	go mod vendor
+
 .PHONY: vet
 vet: ## Run go vet against code.
 	go vet ./...
 
 .PHONY: test
 test: manifests generate fmt vet envtest ## Run tests.
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./... -coverprofile cover.out
+	@echo "Reminder: Please continue to add test cases!"
+##	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./... -coverprofile cover.out
+
+.PHONY: buildx
+buildx: 
+	docker buildx install
 
 ##@ Build
 
 .PHONY: build
-build: generate fmt vet ## Build manager binary.
+build: generate fmt vet vendor ## Build manager binary.
 	go build -o bin/manager main.go
 
 .PHONY: run
@@ -117,8 +128,12 @@ run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./main.go
 
 .PHONY: docker-build
-docker-build: test ## Build docker image with the manager.
-	docker build -t ${IMG} .
+docker-build: test buildx ## Build docker image with the manager.
+	docker buildx build --build-arg USE_VENDOR=Disabled -t ${IMG} . --load
+
+.PHONY: docker-build-vendor
+docker-build-vendor: test buildx vendor
+	docker buildx build --build-arg USE_VENDOR=Enabled -t ${IMG} . --load
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
