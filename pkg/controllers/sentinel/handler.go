@@ -4,9 +4,9 @@ import (
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/types"
 
-	kvrocksv1alpha1 "github.com/KvrocksLabs/kvrocks-operator/api/v1alpha1"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/client/k8s"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/client/kvrocks"
+	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/k8s"
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
 )
 
 type KVRocksSentinelHandler struct {

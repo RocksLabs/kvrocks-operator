@@ -3,9 +3,9 @@ package cluster
 import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	kvrocksv1alpha1 "github.com/KvrocksLabs/kvrocks-operator/api/v1alpha1"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/client/kvrocks"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/controllers/common"
+	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
+	"github.com/RocksLabs/kvrocks-operator/pkg/controllers/common"
 )
 
 func (h *KVRocksClusterHandler) ensureSentinel() error {

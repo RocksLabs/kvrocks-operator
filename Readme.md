@@ -197,7 +197,7 @@ status:
 
 ### Sentinel
 
-![avatar](https://github.com/KvrocksLabs/kvrocks-operator/blob/unstable/images/sentinel.png)
+![avatar](https://github.com/RocksLabs/kvrocks-operator/blob/unstable/images/sentinel.png)
 
 1. Use statefulSet to deploy sentinel Pod
 2. For scaling, just modify the spec.replicas field
@@ -226,7 +226,7 @@ status:
 
 ### Standard
 
-![avatar](https://github.com/KvrocksLabs/kvrocks-operator/blob/unstable/images/standard.png)
+![avatar](https://github.com/RocksLabs/kvrocks-operator/blob/unstable/images/standard.png)
 
 1. Use statefulSet to deploy kvrocks pod
 2. Sentinel is used to monitor kvrocks master-slave mode, and perform failover and discovery
@@ -247,7 +247,7 @@ status:
 
 ### Cluster
 
-![avatar](https://github.com/KvrocksLabs/kvrocks-operator/blob/unstable/images/cluster.png)
+![avatar](https://github.com/RocksLabs/kvrocks-operator/blob/unstable/images/cluster.png)
 
 1. Use statefulSet to control pods
 2. Sentinel is used to monitor the cluster

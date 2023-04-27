@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/client/kvrocks"
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
 )
 
 func TestSetClusterNodeId(t *testing.T) {

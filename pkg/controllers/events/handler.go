@@ -9,10 +9,10 @@ import (
 	"github.com/go-redis/redis/v8"
 	"k8s.io/apimachinery/pkg/types"
 
-	kvrocksv1alpha1 "github.com/KvrocksLabs/kvrocks-operator/api/v1alpha1"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/client/kvrocks"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/controllers/common"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/resources"
+	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
+	"github.com/RocksLabs/kvrocks-operator/pkg/controllers/common"
+	"github.com/RocksLabs/kvrocks-operator/pkg/resources"
 )
 
 const ErrNoSuitableSlaver = "ErrNoSuitableSlaver"
