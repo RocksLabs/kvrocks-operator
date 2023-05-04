@@ -16,10 +16,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	kvrocksv1alpha1 "github.com/KvrocksLabs/kvrocks-operator/api/v1alpha1"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/client/kvrocks"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/resources"
-	"github.com/KvrocksLabs/kvrocks-operator/test/e2e/suite"
+	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
+	"github.com/RocksLabs/kvrocks-operator/pkg/resources"
+	"github.com/RocksLabs/kvrocks-operator/test/e2e/suite"
 )
 
 var _ = Describe("KVRocks standard controller", func() {

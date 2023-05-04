@@ -5,7 +5,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	kvrocksv1alpha1 "github.com/KvrocksLabs/kvrocks-operator/api/v1alpha1"
+	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
 )
 
 func (c *Client) GetKVRocks(key types.NamespacedName) (*kvrocksv1alpha1.KVRocks, error) {

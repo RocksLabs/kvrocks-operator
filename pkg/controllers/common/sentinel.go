@@ -6,8 +6,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	kvrocksv1alpha1 "github.com/KvrocksLabs/kvrocks-operator/api/v1alpha1"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/resources"
+	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
+	"github.com/RocksLabs/kvrocks-operator/pkg/resources"
 )
 
 func (h *CommandHandler) EnsureSentinel(masterIP string, index ...int) (bool, error) {

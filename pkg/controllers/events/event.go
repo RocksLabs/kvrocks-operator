@@ -9,8 +9,8 @@ import (
 	"github.com/robfig/cron/v3"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/client/k8s"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/client/kvrocks"
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/k8s"
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
 )
 
 type eventMessage struct {

@@ -5,8 +5,8 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/errors"
 
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/client/kvrocks"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/resources"
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
+	"github.com/RocksLabs/kvrocks-operator/pkg/resources"
 )
 
 func (h *KVRocksStandardHandler) ensureKubernetes() error {

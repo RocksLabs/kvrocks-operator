@@ -1,7 +1,7 @@
 package sentinel
 
 import (
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/resources"
+	"github.com/RocksLabs/kvrocks-operator/pkg/resources"
 )
 
 func (h *KVRocksSentinelHandler) ensureKubernetes() error {

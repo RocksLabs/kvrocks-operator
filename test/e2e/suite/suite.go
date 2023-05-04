@@ -5,6 +5,7 @@ import (
 	"flag"
 	"path/filepath"
 
+	"github.com/RocksLabs/kvrocks-operator/pkg/controllers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	kruise "github.com/openkruise/kruise-api/apps/v1beta1"
@@ -16,9 +17,8 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	kvrocksv1alpha1 "github.com/KvrocksLabs/kvrocks-operator/api/v1alpha1"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/client/kvrocks"
-	. "github.com/KvrocksLabs/kvrocks-operator/pkg/controllers"
+	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
 )
 
 var K8sClient client.Client
@@ -64,7 +64,7 @@ var _ = BeforeSuite(func() {
 
 	KVRocksClient = kvrocks.NewKVRocksClient(ctrl.Log)
 
-	err = (&KVRocksReconciler{
+	err = (&controllers.KVRocksReconciler{
 		Client: k8sManager.GetClient(),
 		Scheme: k8sManager.GetScheme(),
 		Log:    ctrl.Log,

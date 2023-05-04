@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	kvrocksv1alpha1 "github.com/KvrocksLabs/kvrocks-operator/api/v1alpha1"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/client/kvrocks"
+	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
 )
 
 func (h *CommandHandler) EnsureTopo() (bool, error) {

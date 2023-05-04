@@ -33,14 +33,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	kvrocksv1alpha1 "github.com/KvrocksLabs/kvrocks-operator/api/v1alpha1"
-	k8s "github.com/KvrocksLabs/kvrocks-operator/pkg/client/k8s"
-	kv "github.com/KvrocksLabs/kvrocks-operator/pkg/client/kvrocks"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/controllers/cluster"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/controllers/events"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/controllers/sentinel"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/controllers/standard"
-	"github.com/KvrocksLabs/kvrocks-operator/pkg/resources"
+	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
+	k8s "github.com/RocksLabs/kvrocks-operator/pkg/client/k8s"
+	kv "github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
+	"github.com/RocksLabs/kvrocks-operator/pkg/controllers/cluster"
+	"github.com/RocksLabs/kvrocks-operator/pkg/controllers/events"
+	"github.com/RocksLabs/kvrocks-operator/pkg/controllers/sentinel"
+	"github.com/RocksLabs/kvrocks-operator/pkg/controllers/standard"
+	"github.com/RocksLabs/kvrocks-operator/pkg/resources"
 )
 
 type KVRocksHandler interface {
