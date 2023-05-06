@@ -32,7 +32,7 @@ func newKVRocksContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 	if instance.Spec.Type == kvrocksv1alpha1.SentinelType {
 		cmd = []string{"redis-cli", "-p", "26379", "ping"}
 	}
-	handler := corev1.Handler{
+	handler := corev1.ProbeHandler{
 		Exec: &corev1.ExecAction{
 			Command: cmd,
 		},
@@ -54,12 +54,12 @@ func newKVRocksContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 		},
 		ReadinessProbe: &corev1.Probe{
 			TimeoutSeconds:   5,
-			Handler:          handler,
+			ProbeHandler:     handler,
 			FailureThreshold: 6,
 		},
 		LivenessProbe: &corev1.Probe{
 			TimeoutSeconds:   5,
-			Handler:          handler,
+			ProbeHandler:     handler,
 			FailureThreshold: 6,
 		},
 	}
