@@ -24,8 +24,8 @@ on:
     branches: ["*"]
 
 jobs:
-  lint-build-test:
-    name: Build/Lint/Test
+  lint-build:
+    name: Build/Lint
     strategy:
       matrix:
         go-version: [1.17.x]
@@ -62,10 +62,3 @@ jobs:
         with:
           version: latest
           args: "--out-${NO_FUTURE}format colored-line-number"
-
-      - name: Upload Coverage Report
-        uses: codecov/codecov-action@v2
-        with:
-          file: ./coverage.out
-          flags: unittests
-          name: codecov-umbrella
