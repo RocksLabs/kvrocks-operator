@@ -43,9 +43,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: google-github-actions/setup-gcloud@v0
-      - run: gcloud info
-
       - name: Restore Go Module Cache
         uses: actions/cache@v3
         with:
