@@ -6,7 +6,7 @@ metadata:
   labels:
     kvrocks/system: xx
 spec:
-  image: apache/kvrocks:2.3.0 # kvrocks image
+  image: apache/kvrocks:nightly # kvrocks image
   imagePullPolicy: IfNotPresent
   master: 3
   replicas: 3

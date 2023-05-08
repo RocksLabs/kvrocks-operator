@@ -6,7 +6,7 @@ managerNamespace:
 imagePullPolicy: Always
 imagePullSecrets:
 
-kubeRBACProxyImage: bitnami/kube-rbac-proxy:v0.14.0
+kubeRBACProxyImage: bitnami/kube-rbac-proxy:0.14.0
 
 resources:
   requests:
