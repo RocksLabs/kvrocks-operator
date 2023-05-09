@@ -25,9 +25,11 @@ helm install kruise openkruise/kruise --version 1.4.0
 kubectl create ns kvrocks
 ```
 
-3. helm install kvrocks-crd deploy/crd -n kvrocks
-
-4. helm install kvrocks-operator deploy/operator -n kvrocks
+3. Use helm to install and manage the crd/operator 
+```
+helm install kvrocks-crd deploy/crd -n kvrocks
+helm install kvrocks-operator deploy/operator -n kvrocks
+```
 
 ### Test
 
