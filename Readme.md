@@ -3,31 +3,33 @@
 
 ## Getting Start
 
-```text
-Please rebuild the kvrocks image, you need to install the redis-cli command tool.
-```
-
-```dockerfile
-FROM kvrocks:2.3.0
-RUN apt update && apt install -y redis-server
-```
-
-```text
-Note the naming rules of kvrocks
-kvrocks-cluster-1-demo
-consists of four parts
-1. kvrocks logo
-2. cluster|standard|sentinel
-3. Indicate the sentinel cluster to be used. In this case, the sentinel cluster is: sentinel-1
-4. kvrocks cluster name
-```
+> Note the naming rules of kvrocks
+> kvrocks-cluster-1-demo
+> consists of four parts
+> 1. kvrocks logo
+> 2. cluster|standard|sentinel
+> 3. Indicate the sentinel cluster to be used. In this case, the sentinel cluster is: sentinel-1
+> 4. kvrocks cluster name
 
 ### Deploy
 
 1. Install OpenKruise
+
+```
+helm repo add openkruise https://openkruise.github.io/charts/
+helm repo update
+helm install kruise openkruise/kruise --version 1.4.0
+```
 2. Create ns kvrocks
-3. helm install kvrocks-crd deploy/crd -n kvrocks
-4. helm install kvrocks-operator deploy/operator -n kvrocks
+```
+kubectl create ns kvrocks
+```
+
+3. Use helm to install and manage the crd/operator 
+```
+helm install kvrocks-crd deploy/crd -n kvrocks
+helm install kvrocks-operator deploy/operator -n kvrocks
+```
 
 ### Test
 
