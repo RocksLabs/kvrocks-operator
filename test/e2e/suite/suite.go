@@ -61,7 +61,7 @@ var _ = BeforeSuite(func() {
 	k8sManager, err := ctrl.NewManager(cfg, ctrl.Options{
 		Scheme: scheme.Scheme,
 	})
-          Expect(err).ToNot(HaveOccurred())
+        Expect(err).ToNot(HaveOccurred())
 
 	KVRocksClient = kvrocks.NewKVRocksClient(ctrl.Log)
 
