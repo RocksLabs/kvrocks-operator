@@ -165,13 +165,6 @@ func min(x, y int) int {
 	return x
 }
 
-func max(x, y int) int {
-	if x > y {
-		return x
-	}
-	return y
-}
-
 func getCurSlotLen(node *kvrocks.Node) int {
 	result := len(node.Slots)
 	if node.Import != nil {

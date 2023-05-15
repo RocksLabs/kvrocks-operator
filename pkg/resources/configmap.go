@@ -43,7 +43,7 @@ const (
 	// client -> sentinel
 	sentinelDefaultUser = "user default +@all -acl -sentinel +sentinel|master +sentinel|replicas +sentinel|sentinels +sentinel|get-master-addr-by-name +sentinel|is-master-down-by-addr +sentinel|slaves on nopass\n"
 	// sentinel -> kvrocks
-	sentinelUser = "user sentinel allchannels +multi +slaveof +ping +exec +subscribe +config|rewrite +role +publish +info +client|setname +client|kill +script|kill on >%s\n"
+	// sentinelUser = "user sentinel allchannels +multi +slaveof +ping +exec +subscribe +config|rewrite +role +publish +info +client|setname +client|kill +script|kill on >%s\n"
 )
 
 const (
