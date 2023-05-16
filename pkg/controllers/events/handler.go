@@ -176,7 +176,7 @@ func (e *event) handleFailover(msg *eventMessage) {
 func (e *event) findNewMaster(ips map[string]int, password string) *string {
 	max := 0
 	var slaveIp *string
-	for ip, _ := range ips {
+	for ip := range ips {
 		offset, err := e.kvrocks.GetOffset(ip, password)
 		if err != nil || offset == -1 {
 			return nil

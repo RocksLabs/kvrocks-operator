@@ -69,6 +69,9 @@ func (h *KVRocksStandardHandler) ensureKubernetes() error {
 			return err
 		}
 		index, err := resources.GetPVCOrPodIndex(pod.Name)
+		if err != nil {
+			return err
+		}
 		node.PodIndex = index
 		h.stsNodes = append(h.stsNodes, &node)
 	}

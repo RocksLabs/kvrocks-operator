@@ -81,7 +81,7 @@ func (s *Client) GetMaster(ip, password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	match := regexp.MustCompile("master_host:([0-9a-zA-Z\\.]+)").FindStringSubmatch(info)
+	match := regexp.MustCompile(`master_host:([0-9a-zA-Z\.]+)`).FindStringSubmatch(info)
 	if len(match) == 0 {
 		return "", nil
 	}
