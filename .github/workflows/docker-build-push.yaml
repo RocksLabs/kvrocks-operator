@@ -34,7 +34,7 @@ jobs:
       - name: build and publish image
         env:
           # fork friendly ^^
-          DOCKER_REPO: docker.io/${{ secrets.docker_username }}/kvrocks-operator
+          DOCKER_REPO: docker.io/${{ secrets.DOCKER_USERNAME }}/kvrocks-operator
         run: |
           docker buildx build \
           --platform linux/amd64,linux/arm64 \
