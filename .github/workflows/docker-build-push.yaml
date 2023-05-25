@@ -9,19 +9,12 @@ on:
 
 jobs:
   docker-build-push:
-    strategy:
-      matrix:
-        go-version: [ 1.17.x ]
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - name: Install Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: ${{matrix.go-version}}
 
       - # Add support for more platforms with QEMU (optional)
         # https://github.com/docker/setup-qemu-action
@@ -47,7 +40,7 @@ jobs:
           --platform linux/amd64,linux/arm64 \
           --label "org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/kvrocks-operator" \
           --label "org.opencontainers.image.description=kvrocks-operator image" \
-          --label "org.opencontainers.image.licenses=MIT" \
+          --label "org.opencontainers.image.licenses=Apache-2.0" \
           --push \
           -t ${DOCKER_REPO}:latest \
           -f Dockerfile \
