@@ -40,6 +40,16 @@ kvrocks.kvrocks.com                        2023-04-22T06:23:33Z
 
 ### Run the operator locally
 
+1. Install OpenKruise
+
+```bash
+helm repo add openkruise https://openkruise.github.io/charts/
+helm repo update
+helm install kruise openkruise/kruise --version 1.4.0
+```
+
+2. Run the operator
+
 ```bash
 make run
 ```
