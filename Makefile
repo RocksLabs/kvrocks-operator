@@ -46,7 +46,7 @@ ifeq ($(USE_IMAGE_DIGESTS), true)
 	BUNDLE_GEN_FLAGS += --use-image-digests
 endif
 
-REGISTRY ?= kvrocks.com/kvrockslabs
+REGISTRY ?= apache.org/rockslabs
 TAG ?= latest
 # Image URL to use all building/pushing image targets
 IMG ?= $(REGISTRY)/kvrocks-operator:$(TAG)
@@ -129,11 +129,8 @@ run: manifests generate fmt vet install ## Run a controller from your host.
 
 .PHONY: docker-build
 docker-build: test buildx ## Build docker image with the manager.
-	docker buildx build --build-arg USE_VENDOR=disabled -t ${IMG} . --load
+	docker buildx build -t ${IMG} . --load
 
-.PHONY: docker-build-vendor
-docker-build-vendor: test buildx vendor
-	docker buildx build --build-arg USE_VENDOR=enabled -t ${IMG} . --load
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
