@@ -90,20 +90,13 @@ The binary would be generated in the `bin` directory
 To build a Docker/OCI-compatible image of the Kvrocks operator, run the following command:
 
 ```bash
-# build image with tag "kvrocks.com/kvrockslabs/kvrocks-operator:latest"
+# build image with tag "apache.org/rockslabs/kvrocks-operator:latest"
 make docker-build
 
-# build image with tag "kvrockslabs/kvrocks-operator:latest"
-REGISTRY=kvrockslabs make docker-build
+# build image with tag "rockslabs/kvrocks-operator:latest"
+REGISTRY=rockslabs make docker-build
 
-# build image with tag "kvrocks.com/kvrockslabs/kvrocks-operator:nightly"
+# build image with tag "apache.org/rockslabs/kvrocks-operator:nightly"
 TAG=nightly make docker-build
 ```
-
-To build image with `vendor` run the following command:
-
-```bash
-make docker-build-vendor
-```
-
 
