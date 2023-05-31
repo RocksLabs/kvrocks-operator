@@ -11,10 +11,10 @@ kubeRBACProxyImage: bitnami/kube-rbac-proxy:0.14.0
 resources:
   requests:
     memory: "1Gi"
-    cpu: "1000m"
+    cpu: "500m"
   limits:
-    memory: "4Gi"
-    cpu: "4000m"
+    memory: "2Gi"
+    cpu: "1000m"
 
 # MaxConcurrentReconciles is the maximum number of concurrent Reconciles which can be run.
 maxConcurrentReconciles: 1024
