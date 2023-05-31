@@ -9,7 +9,7 @@ spec:
   image: apache/kvrocks:nightly
   imagePullPolicy: IfNotPresent
   master: 1
-  replicas: 1
+  replicas: 3
   type: standard
   enableSentinel: true
   password: "123456"

@@ -106,7 +106,7 @@ func getAffinity(instance *kvrocksv1alpha1.KVRocks, labels map[string]string) *c
 func getPersistentClaim(instance *kvrocksv1alpha1.KVRocks, labels map[string]string) corev1.PersistentVolumeClaim {
 	mode := corev1.PersistentVolumeFilesystem
 	var class *string = nil
-	size := resource.MustParse("1Gi")
+	size := resource.MustParse("200Mi")
 	if instance.Spec.Storage != nil {
 		if instance.Spec.Storage.Class != "" {
 			class = &instance.Spec.Storage.Class
