@@ -15,7 +15,7 @@ type KVRocksSentinelHandler struct {
 	k8s      *k8s.Client
 	kvrocks  *kvrocks.Client
 	log      logr.Logger
-	pods     []string
+	pods     map[string]struct{}
 	requeue  bool
 }
 
@@ -31,6 +31,7 @@ func NewKVRocksSentinelHandler(
 		kvrocks:  kvrocks,
 		log:      logger,
 		key:      key,
+		pods:     map[string]struct{}{},
 		requeue:  false,
 	}
 }

@@ -76,7 +76,7 @@ func (h *KVRocksSentinelHandler) getMasterMsg(key types.NamespacedName, password
 
 func (h *KVRocksSentinelHandler) ensureMonitor(masterIP, masterName, password string) error {
 	sentinelPassword := h.instance.Spec.Password
-	for _, sentinelIP := range h.pods {
+	for sentinelIP := range h.pods {
 		master, err := h.kvrocks.GetMasterFromSentinel(sentinelIP, sentinelPassword, masterName)
 		if err != nil || master != masterIP {
 			h.kvrocks.RemoveMonitor(sentinelIP, sentinelPassword, masterName)
