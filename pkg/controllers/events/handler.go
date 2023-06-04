@@ -18,8 +18,14 @@ import (
 const ErrNoSuitableSlaver = "ErrNoSuitableSlaver"
 
 func (e *event) sentDownMessage(msg *produceMessage) {
-	subpub := e.kvrocks.SubOdownMsg(msg.ip, msg.password)
-	go e.listen(subpub, msg.systemId, msg.key)
+	pubsub, finalize := e.kvrocks.SubOdownMsg(msg.ip, msg.password)
+	go func() {
+		defer func() {
+			finalize()
+		}()
+
+		e.listen(pubsub, msg.systemId, msg.key)
+	}()
 }
 
 func (e *event) listen(pubsub *redis.PubSub, systemId, namespaceName string) {
