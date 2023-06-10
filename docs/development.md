@@ -9,7 +9,7 @@ We recommend you use a Linux/macOS platform for development.
 ### Install Required Software
 -   Go
     
-    -   Currently, building the Kvrocks operator requires Go 1.17 or later.
+    -   Currently, building the Kvrocks operator requires Go 1.19 or later.
 -   Docker
 -   Kubernetes cluster
     
@@ -35,17 +35,58 @@ make install
 
 Expected output:
 ```bash
-kvrocks.kvrocks.com                        2023-04-22T06:23:33Z
+$ kubectl get crds
+NAME                           CREATED AT
+kvrocks.kvrocks.com            2023-04-22T06:23:33Z
 ```
 
 ### Run the operator locally
+
+1. Install OpenKruise
+
+```bash
+helm repo add openkruise https://openkruise.github.io/charts/
+helm repo update
+helm install kruise openkruise/kruise --version 1.4.0
+```
+
+2. Run the operator
 
 ```bash
 make run
 ```
 Now stop the process and we're ready for debugging.
 
-## Debugging in VSCode
+## Debugging in VSCode & Local Debugging with Telepresence
+
+[Telepresence](https://github.com/telepresenceio/telepresence) is an open-source tool that allows you to access services in a Kubernets cluster as if you were in a local environment.
+
+**Note: You can refer the [Telepresence github](https://github.com/telepresenceio/telepresence) for more detail.**
+
+1. To install Telepresence, run the following command or refer to the [official installation guide](https://www.getambassador.io/docs/telepresence/latest/install?os=gnu-linux#install)
+
+```bash
+# 1. Download the latest binary (~50 MB):
+sudo curl -fL https://app.getambassador.io/download/tel2/linux/amd64/latest/telepresence -o /usr/local/bin/telepresence
+
+# 2. Make the binary executable:
+sudo chmod a+x /usr/local/bin/telepresence
+```
+
+2. Then run the following command to set up traffic manager:
+
+```bash
+telepresence helm install
+```
+
+3. Now run the following command to connect the cluster:
+
+```bash
+telepresence connect
+```
+
+4. Debug the operator with your favorite IDE. And we provide the VSCode launch configuration for debugging.
+
 
 Debugging in VSCode requires a launch configuration, you can use the following configuration:
 
@@ -75,6 +116,13 @@ Now start debugging by clicking the menu **[Run > Start Debugging]** or pressing
 * `main() main.go`, the entry point of the Kvrocks operator
 * `KVRocksReconciler.Reconcile() pkg/controller/kvrocks_controller.go`, the core function of the Kvrocks operator
 
+5. After debugging, run the following command to clean up the traffic manager:
+
+```bash
+telepresence quit # disconnect from the cluster
+
+telepresence quit -ur # stop telepresence's daemon processes
+```
 
 ## Building the Kvrocks operator
 
