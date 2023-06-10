@@ -9,7 +9,7 @@ We recommend you use a Linux/macOS platform for development.
 ### Install Required Software
 -   Go
     
-    -   Currently, building the Kvrocks operator requires Go 1.17 or later.
+    -   Currently, building the Kvrocks operator requires Go 1.19 or later.
 -   Docker
 -   Kubernetes cluster
     
@@ -35,7 +35,9 @@ make install
 
 Expected output:
 ```bash
-kvrocks.kvrocks.com                        2023-04-22T06:23:33Z
+$ kubectl get crds
+NAME                           CREATED AT
+kvrocks.kvrocks.com            2023-04-22T06:23:33Z
 ```
 
 ### Run the operator locally
