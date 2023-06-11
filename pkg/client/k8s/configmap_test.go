@@ -6,7 +6,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	kubeerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -28,20 +27,17 @@ func TestGetConfigMap(t *testing.T) {
 		name       string
 		configMap  *corev1.ConfigMap
 		existingCM *corev1.ConfigMap
-		errorOnGet error
 		expErr     bool
 	}{
 		{
 			name:       "A configmap should be returned.",
 			configMap:  testConfigMap.DeepCopy(),
 			existingCM: testConfigMap.DeepCopy(),
-			errorOnGet: nil,
 			expErr:     false,
 		}, {
 			name:       "A non existent configmap should return an error.",
 			configMap:  testConfigMap.DeepCopy(),
 			existingCM: nil,
-			errorOnGet: kubeerrors.NewNotFound(schema.GroupResource{}, ""),
 			expErr:     true,
 		},
 	}
@@ -65,6 +61,7 @@ func TestGetConfigMap(t *testing.T) {
 
 			if test.expErr {
 				assert.Error(err)
+				assert.True(kubeerrors.IsNotFound(err))
 			} else {
 				assert.NoError(err)
 				assert.Equal(test.existingCM.Name, cm.Name)
@@ -96,20 +93,16 @@ func TestUpdateConfigMap(t *testing.T) {
 	}
 
 	tests := []struct {
-		name          string
-		configMap     *corev1.ConfigMap
-		existingCM    *corev1.ConfigMap
-		errorOnGet    error
-		errorOnUpdate error
-		expErr        bool
+		name       string
+		configMap  *corev1.ConfigMap
+		existingCM *corev1.ConfigMap
+		expErr     bool
 	}{
 		{
-			name:          "A configmap should be updated.",
-			configMap:     updatedConfigMap.DeepCopy(),
-			existingCM:    testConfigMap.DeepCopy(),
-			errorOnGet:    nil,
-			errorOnUpdate: nil,
-			expErr:        false,
+			name:       "A configmap should be updated.",
+			configMap:  updatedConfigMap.DeepCopy(),
+			existingCM: testConfigMap.DeepCopy(),
+			expErr:     false,
 		},
 	}
 
@@ -153,12 +146,10 @@ func TestCreateOrUpdateConfigMap(t *testing.T) {
 	}
 
 	tests := []struct {
-		name          string
-		configMap     *corev1.ConfigMap
-		existingCM    *corev1.ConfigMap
-		errorOnGet    error
-		errorOnCreate error
-		expErr        bool
+		name       string
+		configMap  *corev1.ConfigMap
+		existingCM *corev1.ConfigMap
+		expErr     bool
 	}{
 		{
 			name:       "A new configmap should create a new configmap.",
@@ -210,11 +201,10 @@ func TestCreateIfNotExistsConfigMap(t *testing.T) {
 	}
 
 	tests := []struct {
-		name          string
-		configMap     *corev1.ConfigMap
-		existingCM    *corev1.ConfigMap
-		errorOnCreate error
-		expErr        bool
+		name       string
+		configMap  *corev1.ConfigMap
+		existingCM *corev1.ConfigMap
+		expErr     bool
 	}{
 		{
 			name:       "Creating a new configmap should succeed.",
