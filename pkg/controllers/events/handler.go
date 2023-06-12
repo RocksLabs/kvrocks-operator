@@ -20,9 +20,7 @@ const ErrNoSuitableSlaver = "ErrNoSuitableSlaver"
 func (e *event) sentDownMessage(msg *produceMessage) {
 	pubsub, finalize := e.kvrocks.SubOdownMsg(msg.ip, msg.password)
 	go func() {
-		defer func() {
-			finalize()
-		}()
+		defer finalize()
 
 		e.listen(pubsub, msg.systemId, msg.key)
 	}()
