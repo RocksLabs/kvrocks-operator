@@ -39,9 +39,9 @@ helm install kvrocks-operator deploy/operator -n kvrocks
    - kubectl apply -f examples/cluster.yaml
 
 ```text
-If the storageclass is nil, we will use the (default) storageclass in the current cluster, or the size is nil, the default size will be set 200Mi (just for test):
+If a storage class is not specified, we will use the default storage class. For instance, in Amazon EKS, the default storage class is gp2.
   storage:
-    size: 32Gi
+    size: 10Gi  # If size is not specified, its default value is 10Gi.
     class: xxxxx # storage class
 ```
 
