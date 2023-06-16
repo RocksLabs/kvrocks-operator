@@ -16,6 +16,7 @@ import (
 )
 
 var TerminationGracePeriodSeconds int64 = 20
+const DefaultStorageSize = "10Gi"
 
 func NewStatefulSet(instance *kvrocksv1alpha1.KVRocks, name string) *kruise.StatefulSet {
 	labels := MergeLabels(instance.Labels, StatefulSetLabels(name))
@@ -106,7 +107,7 @@ func getAffinity(instance *kvrocksv1alpha1.KVRocks, labels map[string]string) *c
 func getPersistentClaim(instance *kvrocksv1alpha1.KVRocks, labels map[string]string) corev1.PersistentVolumeClaim {
 	mode := corev1.PersistentVolumeFilesystem
 	var class *string = nil
-	size := resource.MustParse("200Mi")
+	size := resource.MustParse(DefaultStorageSize)
 	if instance.Spec.Storage != nil {
 		if instance.Spec.Storage.Class != "" {
 			class = &instance.Spec.Storage.Class
