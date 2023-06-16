@@ -39,9 +39,9 @@ helm install kvrocks-operator deploy/operator -n kvrocks
    - kubectl apply -f examples/cluster.yaml
 
 ```text
-The default data is not persistent, if you want to persist the data, please modify the following fields of the case:
+If a storage class is not specified, we will use the default storage class. For instance, in Amazon EKS, the default storage class is gp2.
   storage:
-    size: 32Gi
+    size: 10Gi  # If size is not specified, its default value is 10Gi.
     class: xxxxx # storage class
 ```
 

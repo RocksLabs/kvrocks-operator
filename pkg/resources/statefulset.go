@@ -9,12 +9,14 @@ import (
 	kruise "github.com/openkruise/kruise-api/apps/v1beta1"
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
 )
 
 var TerminationGracePeriodSeconds int64 = 20
+const DefaultStorageSize = "10Gi"
 
 func NewStatefulSet(instance *kvrocksv1alpha1.KVRocks, name string) *kruise.StatefulSet {
 	labels := MergeLabels(instance.Labels, StatefulSetLabels(name))
@@ -74,11 +76,8 @@ func NewStatefulSet(instance *kvrocksv1alpha1.KVRocks, name string) *kruise.Stat
 			},
 		},
 	}
-	if instance.Spec.Storage != nil {
-		sts.Spec.VolumeClaimTemplates = append(sts.Spec.VolumeClaimTemplates, getPersistentClaim(instance, labels))
-	} else {
-		sts.Spec.Template.Spec.Volumes = append(sts.Spec.Template.Spec.Volumes, getRedisDataVolume(instance))
-	}
+
+	sts.Spec.VolumeClaimTemplates = append(sts.Spec.VolumeClaimTemplates, getPersistentClaim(instance, labels))
 	return sts
 }
 
@@ -108,8 +107,15 @@ func getAffinity(instance *kvrocksv1alpha1.KVRocks, labels map[string]string) *c
 func getPersistentClaim(instance *kvrocksv1alpha1.KVRocks, labels map[string]string) corev1.PersistentVolumeClaim {
 	mode := corev1.PersistentVolumeFilesystem
 	var class *string = nil
-	if instance.Spec.Storage.Class != "" {
-		class = &instance.Spec.Storage.Class
+	size := resource.MustParse(DefaultStorageSize)
+	if instance.Spec.Storage != nil {
+		if instance.Spec.Storage.Class != "" {
+			class = &instance.Spec.Storage.Class
+		}
+
+		if !instance.Spec.Storage.Size.IsZero() {
+			size = instance.Spec.Storage.Size
+		}
 	}
 	return corev1.PersistentVolumeClaim{
 		ObjectMeta: metav1.ObjectMeta{
@@ -123,20 +129,11 @@ func getPersistentClaim(instance *kvrocksv1alpha1.KVRocks, labels map[string]str
 			AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
 			Resources: corev1.ResourceRequirements{
 				Requests: corev1.ResourceList{
-					corev1.ResourceStorage: instance.Spec.Storage.Size,
+					corev1.ResourceStorage: size,
 				},
 			},
 			StorageClassName: class,
 			VolumeMode:       &mode,
-		},
-	}
-}
-
-func getRedisDataVolume(instance *kvrocksv1alpha1.KVRocks) corev1.Volume {
-	return corev1.Volume{
-		Name: "data",
-		VolumeSource: corev1.VolumeSource{
-			EmptyDir: &corev1.EmptyDirVolumeSource{},
 		},
 	}
 }
