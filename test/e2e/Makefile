@@ -1,14 +1,5 @@
 .PHONY: all
 
-# cluster setup
-e2e-setup:
-	@echo "Setting up e2e test cluster"
-	./script/start_minikube_cluster.sh up -c e2e-test
-
-e2e-destroy:
-	@echo "Destroying e2e test cluster"
-	./script/start_minikube_cluster.sh down -c e2e-test
-
 # download ginkgo
 PROJECT_DIR := $(shell dirname $(shell dirname $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))))
 GINKGO=$(PROJECT_DIR)/bin/ginkgo
@@ -20,7 +11,7 @@ ginkgo: ## Download ginkgo locally if necessary.
 # run e2e tests
 e2e-test:
 ifeq ($(mode), standard)
-	$(GINKGO) -v ./standard/
+	CONFIG_FILE_PATH=$(PROJECT_DIR)/test/e2e/$(CONFIG_FILE_PATH) $(GINKGO) -v ./standard/
 else
 	@echo "Invalid mode: $(mode)"
 endif

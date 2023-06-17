@@ -5,8 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"path/filepath"
-	"strconv"
+	"os"
 	"time"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
@@ -20,7 +19,6 @@ import (
 
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/util/homedir"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/yaml"
@@ -32,30 +30,21 @@ var (
 	kvrocksClient *kvrocks.Client
 )
 
-// TODO remove the hard code and use the config.yaml
-var config = &Config{
-	InstallKubernetes:        false,
-	UninstallKubernetes:      false,
-	InstallKruise:            true,
-	InstallKvrocksOperator:   true,
-	UsingKvorcksOperatorHelm: true,
-	InstallKruiseVersion:     "1.4.0",
-	ClusterName:              "e2e-test",
-	Namespace:                "kvrocks",
-	ClusterConnectionConfig: ClusterConnectionConfig{
-		KubeConfig:  filepath.Join(homedir.HomeDir(), ".kube", "config"),
-		Development: true,
-	},
-}
-
 var _ = BeforeSuite(func() {
+	configFilePath := os.Getenv("CONFIG_FILE_PATH")
+	if configFilePath == "" {
+		configFilePath = "../config/config.yaml"
+	}
+	config, err := NewConfig(configFilePath)
+	Expect(err).Should(Succeed())
 	env = Start(config)
 	ctx = context.Background()
 	kvrocksClient = kvrocks.NewKVRocksClient(ctrl.Log)
 })
 
 var _ = AfterSuite(func() {
-	env.Clear()
+	err := env.Clean()
+	Expect(err).Should(Succeed())
 })
 
 var _ = Describe("Operator for Standard Mode", func() {
@@ -70,7 +59,6 @@ var _ = Describe("Operator for Standard Mode", func() {
 	)
 
 	BeforeEach(func() {
-		fmt.Println("before each")
 		instance = &kvrocksv1alpha1.KVRocks{}
 		instanceYamlFile, err := ioutil.ReadFile("../../../examples/standard.yaml")
 		Expect(err).Should(Succeed())
@@ -102,7 +90,6 @@ var _ = Describe("Operator for Standard Mode", func() {
 	})
 
 	AfterEach(func() {
-		fmt.Println("after each")
 		Expect(env.Client.Delete(ctx, instance)).Should(Succeed())
 		Eventually(func() bool {
 			return k8serr.IsNotFound(env.Client.Get(ctx, key, instance))
@@ -265,17 +252,8 @@ func checkKVRocks(instance *kvrocksv1alpha1.KVRocks) error {
 		if err := env.Client.Get(ctx, key, &pod); err != nil {
 			return err
 		}
-		// portforward for e2e test
-		localPort := []string{fmt.Sprintf("%d:%d", 6379+index, 6379)}
-		close, err := env.PortForward(&pod, localPort)
 
-		if err != nil {
-			return err
-		}
-
-		defer close()
-
-		node, err := kvrocksClient.NodeInfo("127.0.0.1:"+strconv.Itoa(6379+index), password)
+		node, err := kvrocksClient.NodeInfo(pod.Status.PodIP, password)
 		if err != nil {
 			return err
 		}
@@ -283,7 +261,7 @@ func checkKVRocks(instance *kvrocksv1alpha1.KVRocks) error {
 			return fmt.Errorf("reole label is incorrect,expect: %s, actual: %s", node.Role, pod.Labels[resources.RedisRole])
 		}
 		if node.Role == kvrocks.RoleMaster {
-			masterIP = append(masterIP, pod.Status.PodIP)
+			masterIP = append(masterIP, node.IP)
 		}
 		if node.Role == kvrocks.RoleSlaver {
 			curMaster, err := kvrocksClient.GetMaster(node.IP, password)
@@ -322,15 +300,8 @@ func checkKVRocks(instance *kvrocksv1alpha1.KVRocks) error {
 			return err
 		}
 
-		localPort := fmt.Sprintf("%d:%d", 26379+index, 26379)
-		close, err := env.PortForward(&pod, []string{localPort})
-		if err != nil {
-			return err
-		}
-		defer close()
-
 		_, name := resources.ParseRedisName(instance.Name)
-		master, err := kvrocksClient.GetMasterFromSentinel("127.0.0.1:"+strconv.Itoa(26379+index), sentinel.Spec.Password, name)
+		master, err := kvrocksClient.GetMasterFromSentinel(pod.Status.PodIP, sentinel.Spec.Password, name)
 		if err != nil {
 			return err
 		}
