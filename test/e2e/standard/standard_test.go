@@ -20,6 +20,7 @@ import (
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/yaml"
 )
@@ -310,6 +311,12 @@ func checkKVRocks(instance *kvrocksv1alpha1.KVRocks) error {
 		}
 	}
 
-	// TODO check PVC
+	var pvcList corev1.PersistentVolumeClaimList
+	if err := env.Client.List(ctx, &pvcList, client.InNamespace(instance.Namespace), client.MatchingLabels(instance.Labels)); err != nil {
+		return err
+	}
+	if len(pvcList.Items) != replicas {
+		return fmt.Errorf("number of pvc is incorrent, expect: %d, actual: %d", replicas, len(pvcList.Items))
+	}
 	return nil
 }
