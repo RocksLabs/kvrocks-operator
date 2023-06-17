@@ -57,16 +57,26 @@ func NewKVRocksClient(logger logr.Logger) *Client {
 	return &Client{logger: logger}
 }
 
+// TODO introduce port for e2e test
 func kvrocksClient(ip, password string) *client.Client {
+	ip, port, err := net.SplitHostPort(ip)
+	if err != nil {
+		port = strconv.Itoa(KVRocksPort)
+	}
 	return client.NewClient(&client.Options{
-		Addr:     net.JoinHostPort(ip, strconv.Itoa(KVRocksPort)),
+		Addr:     net.JoinHostPort(ip, port),
 		Password: password,
 	})
 }
 
+// TODO introduce port for e2e test
 func kvrocksSentinelClient(ip, password string) *client.SentinelClient {
+	ip, port, err := net.SplitHostPort(ip)
+	if err != nil {
+		port = strconv.Itoa(SentinelPort)
+	}
 	return client.NewSentinelClient(&client.Options{
-		Addr:     net.JoinHostPort(ip, strconv.Itoa(SentinelPort)),
+		Addr:     net.JoinHostPort(ip, port),
 		Username: SuperUser,
 		Password: password,
 	})
