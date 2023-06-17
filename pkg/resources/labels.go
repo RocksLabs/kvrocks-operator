@@ -19,6 +19,12 @@ func MergeLabels(allLabels ...map[string]string) map[string]string {
 	return res
 }
 
+func DeploymentLabels(name string) map[string]string {
+	return map[string]string{
+		"kvrocks/deployment": name,
+	}
+}
+
 func StatefulSetLabels(name string) map[string]string {
 	return map[string]string{
 		"kvrocks/statefulset": name,
