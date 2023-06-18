@@ -17,7 +17,7 @@
 
 ```
 helm repo add openkruise https://openkruise.github.io/charts/
-jinxu95/kvrocks-operator
+helm repo update
 helm install kruise openkruise/kruise --version 1.4.0
 ```
 2. Create ns kvrocks
@@ -39,9 +39,9 @@ helm install kvrocks-operator deploy/operator -n kvrocks
    - kubectl apply -f examples/cluster.yaml
 
 ```text
-If a storage class is not specified, we will use the default storage class. For instance, in Amazon EKS, the default storage class is gp2.
+The default data is not persistent, if you want to persist the data, please modify the following fields of the case:
   storage:
-    size: 10Gi  # If size is not specified, its default value is 10Gi.
+    size: 32Gi
     class: xxxxx # storage class
 ```
 

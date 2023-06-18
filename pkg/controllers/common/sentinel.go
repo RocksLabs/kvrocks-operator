@@ -64,6 +64,8 @@ func (h *CommandHandler) GetSentinel() (*corev1.PodList, *string, bool, error) {
 		Name:      sentinel.Name,
 	}
 	sentinel, err := h.k8s.GetKVRocks(key)
+	fmt.Println("sentinel", sentinel)
+	fmt.Println("err", err)
 	if err != nil || sentinel.Status.Status != kvrocksv1alpha1.StatusRunning {
 		return nil, nil, true, err
 	}

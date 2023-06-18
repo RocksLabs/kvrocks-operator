@@ -18,6 +18,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	"go.uber.org/zap/zapcore"
@@ -88,6 +89,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	fmt.Println("maxConcurrentReconciles: ", maxConcurrentReconciles)
 	if err = (&controllers.KVRocksReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),

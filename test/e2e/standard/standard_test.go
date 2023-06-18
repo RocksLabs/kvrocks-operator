@@ -14,9 +14,11 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	kruise "github.com/openkruise/kruise-api/apps/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -286,23 +288,34 @@ func checkKVRocks(instance *kvrocksv1alpha1.KVRocks) error {
 	}
 
 	sentinel := resources.GetSentinelInstance(instance)
-	for index := 0; index < int(sentinel.Spec.Replicas); index++ {
-		var pod corev1.Pod
-		key := types.NamespacedName{
-			Namespace: sentinel.Namespace,
-			Name:      fmt.Sprintf("%s-%d", sentinel.Name, index),
-		}
-		if err := env.Client.Get(ctx, key, &pod); err != nil {
-			return err
-		}
+	deployment := &appsv1.Deployment{}
+	key := types.NamespacedName{
+		Namespace: sentinel.Namespace,
+		Name:      sentinel.Name,
+	}
 
+	if err := env.Client.Get(ctx, key, deployment); err != nil {
+		return err
+	}
+
+	labelSelector := labels.Set(deployment.Spec.Selector.MatchLabels).AsSelector()
+	podList := &corev1.PodList{}
+	listOpts := []client.ListOption{
+		client.InNamespace(sentinel.Namespace),
+		client.MatchingLabelsSelector{Selector: labelSelector},
+	}
+	if err := env.Client.List(ctx, podList, listOpts...); err != nil {
+		return err
+	}
+
+	for _, pod := range podList.Items {
 		_, name := resources.ParseRedisName(instance.Name)
 		master, err := kvrocksClient.GetMasterFromSentinel(pod.Status.PodIP, sentinel.Spec.Password, name)
 		if err != nil {
 			return err
 		}
 		if master != masterIP[0] {
-			return fmt.Errorf("sentinel-%d  monitor master error message,masterIp expect: %s, actual: %s", index, masterIP[0], master)
+			return fmt.Errorf("sentinel %s  monitor master error message,masterIp expect: %s, actual: %s", pod.Name, masterIP[0], master)
 		}
 	}
 

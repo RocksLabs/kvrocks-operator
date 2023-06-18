@@ -58,7 +58,7 @@ func (h *KVRocksSentinelHandler) ensureSentinel() error {
 }
 
 func (h *KVRocksSentinelHandler) getMasterMsg(key types.NamespacedName, password string) (*kv.Node, error) {
-	pods, err := h.k8s.ListDeploymentPods(key)
+	pods, err := h.k8s.ListStatefulSetPods(key)
 	if err != nil {
 		return nil, err
 	}
