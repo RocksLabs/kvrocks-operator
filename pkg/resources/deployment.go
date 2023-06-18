@@ -1,13 +1,16 @@
 package resources
 
 import (
+	"fmt"
+
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func NewDeployment(instance *kvrocksv1alpha1.KVRocks, name string) *appsv1.Deployment {
+func NewSentinelDeployment(instance *kvrocksv1alpha1.KVRocks) *appsv1.Deployment {
+	name := GetDeploymentName(instance.Name)
 	labels := MergeLabels(instance.Labels, DeploymentLabels(name))
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -49,5 +52,25 @@ func NewDeployment(instance *kvrocksv1alpha1.KVRocks, name string) *appsv1.Deplo
 		},
 	}
 
-	if 
+	dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes, getSentinelDataVolume(instance))
+
+	dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, *NewSentinelContainer(instance))
+
+	return dep
+}
+
+func getSentinelDataVolume(instance *kvrocksv1alpha1.KVRocks) corev1.Volume {
+	return corev1.Volume{
+		Name: "data",
+		VolumeSource: corev1.VolumeSource{
+			EmptyDir: &corev1.EmptyDirVolumeSource{},
+		},
+	}
+}
+
+func GetDeploymentName(name string, index ...int) string {
+	if len(index) != 0 {
+		return fmt.Sprintf("%s-%d", name, index[0])
+	}
+	return name
 }

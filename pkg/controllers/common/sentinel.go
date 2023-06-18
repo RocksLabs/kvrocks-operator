@@ -67,7 +67,7 @@ func (h *CommandHandler) GetSentinel() (*corev1.PodList, *string, bool, error) {
 	if err != nil || sentinel.Status.Status != kvrocksv1alpha1.StatusRunning {
 		return nil, nil, true, err
 	}
-	sentinelPods, err := h.k8s.ListStatefulSetPods(key)
+	sentinelPods, err := h.k8s.ListDeploymentPods(key)
 	if err != nil {
 		return nil, nil, false, err
 	}
