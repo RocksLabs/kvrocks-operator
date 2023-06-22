@@ -1,13 +1,10 @@
 package sentinel
 
 import (
-	"fmt"
-
 	"github.com/RocksLabs/kvrocks-operator/pkg/resources"
 )
 
 func (h *KVRocksSentinelHandler) ensureKubernetes() error {
-	fmt.Println("ensureSentinelKubernetes")
 	cm := resources.NewSentinelConfigMap(h.instance)
 	err := h.k8s.CreateOrUpdateConfigMap(cm)
 	if err != nil {
@@ -18,13 +15,10 @@ func (h *KVRocksSentinelHandler) ensureKubernetes() error {
 		return err
 	}
 	dep := resources.NewSentinelDeployment(h.instance)
-	fmt.Println("ensureSentinelKubernetes", dep)
 	if err = h.k8s.CreateIfNotExistsDeployment(dep); err != nil {
-		fmt.Println("ensureSentinelKubernetes", err)
 		return err
 	}
 	dep, err = h.k8s.GetDeployment(h.key)
-	fmt.Println("ensureSentinelKubernetes", dep)
 	if err != nil {
 		return err
 	}

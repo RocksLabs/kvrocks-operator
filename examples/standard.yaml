@@ -52,8 +52,8 @@ spec:
       operator: Exists
   resources:
     limits:
-      cpu: 100m
-      memory: 1Gi
+      cpu: 2
+      memory: 8Gi
     requests:
-      cpu: 100m
-      memory: 1Gi
+      cpu: 1
+      memory: 4Gi

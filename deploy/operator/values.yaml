@@ -1,5 +1,5 @@
 namePrefix: kvrocks-operator
-image: jinxu95/kvrocks-operator:latest
+image: hulkdev/kvrocks-operator:latest
 
 managerNamespace:
 

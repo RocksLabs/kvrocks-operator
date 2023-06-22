@@ -84,7 +84,6 @@ func (r *KVRocksReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	k8sClient := k8s.NewK8sClient(r.Client, log)
 	kvClient := kv.NewKVRocksClient(log)
 	instance, err := k8sClient.GetKVRocks(req.NamespacedName)
-	log.Info(fmt.Sprintf("Reconciling KVRocks %s", req.NamespacedName.String()))
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return ctrl.Result{}, nil
@@ -140,7 +139,6 @@ func (r *KVRocksReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	log.Info("reconcile begin")
 	err, _ = handler.Handle()
 	if handler.Requeue() || shouldRetry(err) {
-		log.Info("reconcile requeue")
 		return ctrl.Result{RequeueAfter: time.Second * 10}, nil
 	}
 	if shouldNotRetry(err) {

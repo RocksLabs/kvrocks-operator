@@ -91,9 +91,8 @@ func (h *KVRocksStandardHandler) ensureKVRocksReplication() error {
 			}
 		}
 	}
-	h.log.Info("redis replication ok")
+	h.log.V(1).Info("redis replication ok")
 	if h.instance.Spec.EnableSentinel {
-		h.log.Info("ensure sentinel monitor test")
 		return h.ensureSentinel(masterIP)
 	}
 	return nil
@@ -102,7 +101,6 @@ func (h *KVRocksStandardHandler) ensureKVRocksReplication() error {
 func (h *KVRocksStandardHandler) ensureSentinel(masterIP string) error {
 	commHandler := common.NewCommandHandler(h.instance, h.k8s, h.kvrocks, h.password)
 	requeue, err := commHandler.EnsureSentinel(masterIP)
-	h.log.Info("sentinel monitor ready", "requeue", requeue, "err", err)
 	h.requeue = requeue
 	if err != nil {
 		return err
@@ -113,7 +111,7 @@ func (h *KVRocksStandardHandler) ensureSentinel(masterIP string) error {
 			return err
 		}
 	}
-	h.log.Info("sentinel monitor ready")
+	h.log.V(1).Info("sentinel monitor ready")
 	return nil
 }
 
