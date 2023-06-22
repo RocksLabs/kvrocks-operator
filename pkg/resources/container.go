@@ -1,6 +1,9 @@
 package resources
 
 import (
+	"fmt"
+	"strconv"
+
 	corev1 "k8s.io/api/core/v1"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
@@ -25,6 +28,23 @@ func NewInstanceContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 		ContainerPort: kvrocks.KVRocksPort,
 	}}
 	return container
+}
+
+func NewExporterContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
+	return &corev1.Container{
+		Name:  "kvrocks-exporter",
+		Image: "jinxu95/kvrocks_exporter:latest",
+		Args: []string{
+			fmt.Sprintf("--kvrocks.addr=%s://localhost:%s", instance.Namespace, strconv.Itoa(kvrocks.KVRocksPort)),
+			fmt.Sprintf("--kvrocks.password=%s", instance.Spec.Password),
+		},
+		Ports: []corev1.ContainerPort{
+			{
+				Name:          "exporter",
+				ContainerPort: 9121,
+			},
+		},
+	}
 }
 
 func newKVRocksContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
