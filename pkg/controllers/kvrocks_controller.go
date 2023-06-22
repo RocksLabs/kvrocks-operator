@@ -25,6 +25,7 @@ import (
 
 	"github.com/go-logr/logr"
 	kruise "github.com/openkruise/kruise-api/apps/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -161,6 +162,7 @@ func (r *KVRocksReconciler) SetupWithManager(mgr ctrl.Manager, maxConcurrentReco
 		For(&kvrocksv1alpha1.KVRocks{}).
 		Owns(&kruise.StatefulSet{}).
 		Owns(&corev1.Pod{}).
+		Owns(&appsv1.Deployment{}).
 		Complete(r)
 }
 
