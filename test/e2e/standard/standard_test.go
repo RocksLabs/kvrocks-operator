@@ -94,84 +94,84 @@ var _ = Describe("Operator for Standard Mode", func() {
 		}, timeout, interval).Should(Equal(true))
 	})
 
-	// It("test update kvrocks config", func() {
-	// 	instance.Spec.KVRocksConfig["slowlog-log-slower-than"] = "250000"
-	// 	instance.Spec.KVRocksConfig["profiling-sample-record-threshold-ms"] = "200"
-	// 	Expect(env.Client.Update(ctx, instance)).Should(Succeed())
-	// 	Eventually(func() error {
-	// 		return checkKVRocks(instance)
-	// 	}, timeout, interval).Should(Succeed())
-	// })
+	It("test update kvrocks config", func() {
+		instance.Spec.KVRocksConfig["slowlog-log-slower-than"] = "250000"
+		instance.Spec.KVRocksConfig["profiling-sample-record-threshold-ms"] = "200"
+		Expect(env.Client.Update(ctx, instance)).Should(Succeed())
+		Eventually(func() error {
+			return checkKVRocks(instance)
+		}, timeout, interval).Should(Succeed())
+	})
 
-	// It("test change password", func() {
-	// 	instance.Spec.Password = "39c5bb"
-	// 	Expect(env.Client.Update(ctx, instance)).Should(Succeed())
-	// 	Eventually(func() error {
-	// 		return checkKVRocks(instance)
-	// 	}, timeout, interval).Should(Succeed())
-	// })
+	It("test change password", func() {
+		instance.Spec.Password = "39c5bb"
+		Expect(env.Client.Update(ctx, instance)).Should(Succeed())
+		Eventually(func() error {
+			return checkKVRocks(instance)
+		}, timeout, interval).Should(Succeed())
+	})
 
-	// It("test recover when slave down", func() {
-	// 	var pod corev1.Pod
-	// 	key := types.NamespacedName{
-	// 		Namespace: instance.GetNamespace(),
-	// 		Name:      fmt.Sprintf("%s-%d", instance.GetName(), 1), // TODO remove 1
-	// 	}
-	// 	Expect(env.Client.Get(ctx, key, &pod)).Should(Succeed())
-	// 	Expect(pod.Labels[resources.RedisRole]).Should(Equal(kvrocks.RoleSlaver))
-	// 	Expect(env.Client.Delete(ctx, &pod)).Should(Succeed())
+	It("test recover when slave down", func() {
+		var pod corev1.Pod
+		key := types.NamespacedName{
+			Namespace: instance.GetNamespace(),
+			Name:      fmt.Sprintf("%s-%d", instance.GetName(), 1), // TODO remove 1
+		}
+		Expect(env.Client.Get(ctx, key, &pod)).Should(Succeed())
+		Expect(pod.Labels[resources.RedisRole]).Should(Equal(kvrocks.RoleSlaver))
+		Expect(env.Client.Delete(ctx, &pod)).Should(Succeed())
 
-	// 	time.Sleep(time.Second * 30)
-	// 	Eventually(func() error {
-	// 		if err := env.Client.Get(ctx, key, &pod); err != nil {
-	// 			return err
-	// 		}
-	// 		if pod.Status.Phase != corev1.PodRunning {
-	// 			return errors.New("please wait pod running")
-	// 		}
-	// 		if pod.Labels[resources.RedisRole] != kvrocks.RoleSlaver {
-	// 			return fmt.Errorf("role is incorrect, expect: %s, actual: %s", kvrocks.RoleSlaver, pod.Labels[resources.RedisRole])
-	// 		}
-	// 		return nil
-	// 	}, timeout, interval).Should(Succeed())
-	// 	Eventually(func() error {
-	// 		return checkKVRocks(instance)
-	// 	}, timeout, interval).Should(Succeed())
-	// })
+		time.Sleep(time.Second * 30)
+		Eventually(func() error {
+			if err := env.Client.Get(ctx, key, &pod); err != nil {
+				return err
+			}
+			if pod.Status.Phase != corev1.PodRunning {
+				return errors.New("please wait pod running")
+			}
+			if pod.Labels[resources.RedisRole] != kvrocks.RoleSlaver {
+				return fmt.Errorf("role is incorrect, expect: %s, actual: %s", kvrocks.RoleSlaver, pod.Labels[resources.RedisRole])
+			}
+			return nil
+		}, timeout, interval).Should(Succeed())
+		Eventually(func() error {
+			return checkKVRocks(instance)
+		}, timeout, interval).Should(Succeed())
+	})
 
-	// It("test recover when master down", func() {
-	// 	var pod corev1.Pod
-	// 	key := types.NamespacedName{
-	// 		Namespace: instance.GetNamespace(),
-	// 		Name:      fmt.Sprintf("%s-%d", instance.GetName(), 0), // TODO remove 0
-	// 	}
-	// 	Expect(env.Client.Get(ctx, key, &pod)).Should(Succeed())
-	// 	Expect(pod.Labels[resources.RedisRole]).Should(Equal(kvrocks.RoleMaster))
-	// 	Expect(env.Client.Delete(ctx, &pod)).Should(Succeed())
-	// 	// wait pod reconstruction
-	// 	time.Sleep(time.Second * 30)
-	// 	Eventually(func() error {
-	// 		if err := env.Client.Get(ctx, key, &pod); err != nil {
-	// 			return err
-	// 		}
-	// 		if pod.Status.Phase != corev1.PodRunning {
-	// 			return errors.New("please wait pod running")
-	// 		}
-	// 		if pod.Labels[resources.RedisRole] != kvrocks.RoleSlaver {
-	// 			return fmt.Errorf("role is incorrect, expect: %s, actual: %s", kvrocks.RoleSlaver, pod.Labels[resources.RedisRole])
-	// 		}
-	// 		return nil
-	// 	}, timeout, interval).Should(Succeed())
-	// 	Eventually(func() error {
-	// 		return checkKVRocks(instance)
-	// 	}, timeout, interval).Should(Succeed())
-	// })
+	It("test recover when master down", func() {
+		var pod corev1.Pod
+		key := types.NamespacedName{
+			Namespace: instance.GetNamespace(),
+			Name:      fmt.Sprintf("%s-%d", instance.GetName(), 0), // TODO remove 0
+		}
+		Expect(env.Client.Get(ctx, key, &pod)).Should(Succeed())
+		Expect(pod.Labels[resources.RedisRole]).Should(Equal(kvrocks.RoleMaster))
+		Expect(env.Client.Delete(ctx, &pod)).Should(Succeed())
+		// wait pod reconstruction
+		time.Sleep(time.Second * 30)
+		Eventually(func() error {
+			if err := env.Client.Get(ctx, key, &pod); err != nil {
+				return err
+			}
+			if pod.Status.Phase != corev1.PodRunning {
+				return errors.New("please wait pod running")
+			}
+			if pod.Labels[resources.RedisRole] != kvrocks.RoleSlaver {
+				return fmt.Errorf("role is incorrect, expect: %s, actual: %s", kvrocks.RoleSlaver, pod.Labels[resources.RedisRole])
+			}
+			return nil
+		}, timeout, interval).Should(Succeed())
+		Eventually(func() error {
+			return checkKVRocks(instance)
+		}, timeout, interval).Should(Succeed())
+	})
 
 	It("test recover when sentinel down", func() {
 		sentinel := resources.GetSentinelInstance(instance)
 		podList, err := getSentinelPodList(sentinel)
 		Expect(err).Should(Succeed())
-		Expect(len(podList.Items)).Should(Equal(sentinel.Spec.Replicas))
+		Expect(len(podList.Items)).Should(Equal(int(sentinel.Spec.Replicas)))
 		Expect(env.Client.Delete(ctx, &podList.Items[0])).Should(Succeed())
 
 		// wait pod reconstruction
