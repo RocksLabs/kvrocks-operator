@@ -108,7 +108,10 @@ func (env *KubernetesEnv) installKruise() {
 
 	// Add OpenKruise Helm repo
 	repoList, err := HelmTool("repo", "list")
-	Expect(err).NotTo(HaveOccurred())
+	if err != nil && strings.Contains(err.Error(), "Error: no repositories to show") {
+		err = nil
+	}
+	Expect(err).Should(Succeed())
 	if !strings.Contains(repoList, "openkruise") {
 		_, err := HelmTool("repo", "add", "openkruise", "https://openkruise.github.io/charts")
 		Expect(err).NotTo(HaveOccurred())
