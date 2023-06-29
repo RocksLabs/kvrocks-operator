@@ -21,26 +21,26 @@ import (
 )
 
 type KubernetesEnv struct {
+	config           *Config
+	kubernetesConfig *rest.Config
 	Client           client.Client
-	Config           *Config
-	KubernetesConfig *rest.Config
 	Clean            func() error
 }
 
 func Start(config *Config) *KubernetesEnv {
 	env := &KubernetesEnv{
-		Config: config,
+		config: config,
 		Clean: func() error {
 			return nil
 		},
 	}
 
-	if env.Config.KubeConfig == "" {
+	if env.config.kubeConfig == "" {
 		env.installKubernetes()
-		env.Config.KubeConfig = filepath.Join(homedir.HomeDir(), ".kube", "config")
+		env.config.kubeConfig = filepath.Join(homedir.HomeDir(), ".kube", "config")
 		env.Clean = func() error {
-			fmt.Fprintf(GinkgoWriter, "uninstall kubernetes cluster %s\n", env.Config.ClusterName)
-			cmd := exec.Command(getClusterInstallScriptPath(), "down", "-c", env.Config.ClusterName)
+			fmt.Fprintf(GinkgoWriter, "uninstall kubernetes cluster %s\n", env.config.clusterName)
+			cmd := exec.Command(getClusterInstallScriptPath(), "down", "-c", env.config.clusterName)
 			err := cmd.Run()
 			return err
 		}
@@ -51,11 +51,11 @@ func Start(config *Config) *KubernetesEnv {
 	env.registerScheme()
 
 	//config
-	cfg, err := loadKubernetesConfig(env.Config.KubeConfig)
+	cfg, err := loadKubernetesConfig(env.config.kubeConfig)
 	Expect(err).NotTo(HaveOccurred())
-	env.KubernetesConfig = cfg
+	env.kubernetesConfig = cfg
 
-	env.Client, err = client.New(env.KubernetesConfig, client.Options{Scheme: scheme.Scheme})
+	env.Client, err = client.New(env.kubernetesConfig, client.Options{Scheme: scheme.Scheme})
 	Expect(err).NotTo(HaveOccurred())
 
 	env.installKruise()
@@ -64,12 +64,12 @@ func Start(config *Config) *KubernetesEnv {
 }
 
 func (env *KubernetesEnv) installKubernetes() {
-	fmt.Fprintf(GinkgoWriter, "install kubernetes cluster %s\n", env.Config.ClusterName)
+	fmt.Fprintf(GinkgoWriter, "install kubernetes cluster %s\n", env.config.clusterName)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel() // This ensures resources are cleaned up.
 
-	cmd := exec.CommandContext(ctx, getClusterInstallScriptPath(), "up", "-c", env.Config.ClusterName)
+	cmd := exec.CommandContext(ctx, getClusterInstallScriptPath(), "up", "-c", env.config.clusterName)
 	done := make(chan error)
 
 	go func() {
@@ -104,7 +104,7 @@ func (env *KubernetesEnv) registerScheme() {
 }
 
 func (env *KubernetesEnv) installKruise() {
-	fmt.Fprintf(GinkgoWriter, "install kruise %s\n", env.Config.KruiseVersion)
+	fmt.Fprintf(GinkgoWriter, "install kruise %s\n", env.config.kruiseVersion)
 
 	// Add OpenKruise Helm repo
 	repoList, err := HelmTool("repo", "list")
@@ -123,7 +123,7 @@ func (env *KubernetesEnv) installKruise() {
 
 	// Install OpenKruise using Helm
 	if !env.isHelmInstalled("kruise") {
-		_, err = HelmTool("install", "kruise", "openkruise/kruise", "--version", env.Config.KruiseVersion, "--wait")
+		_, err = HelmTool("install", "kruise", "openkruise/kruise", "--version", env.config.kruiseVersion, "--wait")
 		Expect(err).NotTo(HaveOccurred())
 	}
 }
@@ -137,7 +137,7 @@ func (env *KubernetesEnv) installKvrocksOperator() {
 	}
 
 	if !env.isHelmInstalled("kvrocks-operator") {
-		_, err := HelmTool("install", "kvrocks-operator", "../../../deploy/operator", "-n", env.Config.Namespace, "--create-namespace")
+		_, err := HelmTool("install", "kvrocks-operator", "../../../deploy/operator", "-n", env.config.namespace, "--create-namespace")
 		Expect(err).NotTo(HaveOccurred())
 	}
 }

@@ -13,10 +13,10 @@ const (
 )
 
 type Config struct {
-	KruiseVersion string `yaml:"kruiseVersion"`
-	ClusterName   string `yaml:"clusterName"`
-	Namespace     string `yaml:"namespace"`
-	KubeConfig    string `yaml:"kubeConfig"`
+	kruiseVersion string `yaml:"kruiseVersion"`
+	clusterName   string `yaml:"clusterName"`
+	namespace     string `yaml:"namespace"`
+	kubeConfig    string `yaml:"kubeConfig"`
 }
 
 func NewConfig(configFilePath string) (*Config, error) {
@@ -32,14 +32,14 @@ func NewConfig(configFilePath string) (*Config, error) {
 		return nil, err
 	}
 
-	if config.ClusterName == "" {
-		config.ClusterName = DefaultClusterName
+	if config.clusterName == "" {
+		config.clusterName = DefaultClusterName
 	}
-	if config.KruiseVersion == "" {
-		config.KruiseVersion = DefaultKruiseVersion
+	if config.kruiseVersion == "" {
+		config.kruiseVersion = DefaultKruiseVersion
 	}
-	if config.Namespace == "" {
-		config.Namespace = DefaultNamespace
+	if config.namespace == "" {
+		config.namespace = DefaultNamespace
 	}
 	return config, nil
 }
