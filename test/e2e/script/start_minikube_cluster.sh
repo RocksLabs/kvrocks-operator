@@ -14,7 +14,7 @@ fi
 
 case "$action" in
 up)
-  minikube start --driver=docker --force --kubernetes-version="${KUBE_VERSION}" --nodes 3 -p "${profile}"
+  minikube start --driver=docker --force --kubernetes-version="${KUBE_VERSION}" -p "${profile}"
   ;;
 down)
   minikube delete --profile "${profile}"
