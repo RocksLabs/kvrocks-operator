@@ -27,7 +27,7 @@ The above config.yaml is the default config file, and it performs the following 
 
 2. Installs kruise of version `1.4.0`.
 
-3. Installs the kvrocks-operator in the `kvrocks` namespace.
+3. Installs the `kvrocks-operator/kvrocks` in the `kvrocks` namespace. If you wish to customize the namespace, ensure that the namespace mentioned in the [YAML file](../../examples/standard.yaml) matches the one specified in the config file.
 
 If you want to run the e2e test in a deployed cluster, you can use the following config file:
 
@@ -37,4 +37,4 @@ clusterName: e2e-test
 namespace: kvrocks
 kubeConfig: /path/to/your/kubeconfig
 ```
-Note that, you should ensure the local environment can connect to the cluster.
+Note that, you should ensure the local environment can connect to the cluster, and the `clusterName` will not be used since you have provided kubeconfig.
