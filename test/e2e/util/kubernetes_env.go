@@ -122,7 +122,7 @@ func (env *KubernetesEnv) installKruise() {
 	Expect(err).NotTo(HaveOccurred())
 
 	// Install OpenKruise using Helm
-	if !env.isHelmInstalled("kruise") {
+	if !env.isHelmInstalled("kruise", "default") {
 		_, err = HelmTool("install", "kruise", "openkruise/kruise", "--version", env.config.KruiseVersion, "--wait")
 		Expect(err).NotTo(HaveOccurred())
 	}
@@ -136,7 +136,7 @@ func (env *KubernetesEnv) installKvrocksOperator() {
 		Expect(err).NotTo(HaveOccurred())
 	}
 
-	if !env.isHelmInstalled("kvrocks-operator") {
+	if !env.isHelmInstalled("kvrocks-operator", env.config.Namespace) {
 		_, err := HelmTool("install", "kvrocks-operator", "../../../deploy/operator", "-n", env.config.Namespace, "--create-namespace")
 		Expect(err).NotTo(HaveOccurred())
 	}
@@ -153,8 +153,8 @@ func (env *KubernetesEnv) isExistsCRD(name string) bool {
 	return true
 }
 
-func (env *KubernetesEnv) isHelmInstalled(name string) bool {
-	_, err := HelmTool("status", name)
+func (env *KubernetesEnv) isHelmInstalled(name string, namespace string) bool {
+	_, err := HelmTool("status", name, "-n", namespace)
 	if err != nil {
 		if !strings.Contains(err.Error(), "release: not found") {
 			Expect(err).NotTo(HaveOccurred())
