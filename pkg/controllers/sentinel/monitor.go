@@ -17,7 +17,7 @@ func (h *KVRocksSentinelHandler) ensureSentinel() error {
 		return err
 	}
 	for _, kvrocks := range kvrockses.Items {
-		if !kvrocks.Spec.EnableSentinel {
+		if !kvrocks.Spec.SentinelConfig.EnableSentinel {
 			continue
 		}
 		if kvrocks.Status.Status != kvrocksv1alpha1.StatusRunning {

@@ -11,7 +11,6 @@ import (
 	"github.com/go-logr/logr"
 	uuid "github.com/satori/go.uuid"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/rand"
 
@@ -80,23 +79,14 @@ func GetSentinelInstance(instance *kvrocksv1alpha1.KVRocks) *kvrocksv1alpha1.KVR
 			ImagePullPolicy: corev1.PullIfNotPresent,
 			Type:            kvrocksv1alpha1.SentinelType,
 			KVRocksConfig:   nil,
-			Replicas:        3,
+			Replicas:        instance.Spec.SentinelConfig.Replicas,
 			Password: func(password string) string {
 				d := []byte(password)
 				m := md5.New()
 				m.Write(d)
 				return hex.EncodeToString(m.Sum(nil))
 			}(system),
-			Resources: &corev1.ResourceRequirements{
-				Limits: corev1.ResourceList{
-					corev1.ResourceCPU:    resource.MustParse("10m"),
-					corev1.ResourceMemory: resource.MustParse("32Mi"),
-				},
-				Requests: corev1.ResourceList{
-					corev1.ResourceCPU:    resource.MustParse("10m"),
-					corev1.ResourceMemory: resource.MustParse("32Mi"),
-				},
-			},
+			Resources:    instance.Spec.SentinelConfig.Resources, //sentinel resources
 			NodeSelector: instance.Spec.NodeSelector,
 			Toleration:   instance.Spec.Toleration,
 			Affinity:     instance.Spec.Affinity,

@@ -203,8 +203,8 @@ func runIfInitialize(instance *kvrocksv1alpha1.KVRocks, log logr.Logger, k8sClie
 			return err
 		}
 	}
-	if instance.Spec.Type == kvrocksv1alpha1.ClusterType && !instance.Spec.EnableSentinel {
-		instance.Spec.EnableSentinel = true
+	if instance.Spec.Type == kvrocksv1alpha1.ClusterType && !instance.Spec.SentinelConfig.EnableSentinel {
+		instance.Spec.SentinelConfig.EnableSentinel = true
 		return k8sClient.UpdateKVRocks(instance)
 	}
 	if instance.Status.Status == kvrocksv1alpha1.StatusNone {

@@ -40,7 +40,7 @@ type KVRocksSpec struct {
 	Toleration     []corev1.Toleration          `json:"toleration,omitempty"`
 	Affinity       *corev1.Affinity             `json:"affinity,omitempty"`
 	Storage        *KVRocksStorage              `json:"storage,omitempty"`
-	EnableSentinel bool                         `json:"enableSentinel,omitempty"`
+	SentinelConfig *SentinelConfig              `json:"sentinelConfig,omitempty"`
 }
 
 // KVRocksStatus defines the observed state of KVRocks
@@ -97,6 +97,12 @@ type KVRocksTopology struct {
 	Migrate  []MigrateMsg `json:"migrate,omitempty"`
 	Import   []ImportMsg  `json:"import,omitempty"`
 	Failover bool         `json:"failover,omitempty"`
+}
+
+type SentinelConfig struct {
+	EnableSentinel bool                         `json:"enableSentinel"`
+	Replicas       int32                        `json:"replicas"`
+	Resources      *corev1.ResourceRequirements `json:"resources"`
 }
 
 type ImportMsg struct {
