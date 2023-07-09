@@ -52,6 +52,7 @@ func Start(config *Config) *KubernetesEnv {
 	env.registerScheme()
 
 	//config
+	checkClusterName(env.config.KubeConfig, env.config.ClusterName)
 	cfg, err := loadKubernetesConfig(env.config.KubeConfig)
 	Expect(err).NotTo(HaveOccurred())
 	env.kubernetesConfig = cfg
@@ -184,6 +185,13 @@ func loadKubernetesConfig(kubeConfig string) (*rest.Config, error) {
 		return nil, err
 	}
 	return cfg, nil
+}
+
+func checkClusterName(kubeConfig string, clusterName string) {
+	loadedConfig, err := clientcmd.LoadFromFile(kubeConfig)
+	Expect(err).NotTo(HaveOccurred())
+	currentContext := loadedConfig.Contexts[loadedConfig.CurrentContext]
+	Expect(currentContext.Cluster).Should(Equal(clusterName))
 }
 
 func getClusterInstallScriptPath() string {

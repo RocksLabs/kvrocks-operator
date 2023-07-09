@@ -37,4 +37,4 @@ clusterName: e2e-test
 namespace: kvrocks
 kubeConfig: /path/to/your/kubeconfig
 ```
-Note that, you should ensure the local environment can connect to the cluster, and the `clusterName` will not be used since you have provided kubeconfig.
+Note that, you should ensure the local environment can connect to the cluster, and the `clusterName` needs to match the `cluster` in the `current-context` of your kubeconfig.
