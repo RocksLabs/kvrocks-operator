@@ -67,6 +67,9 @@ var _ = Describe("Operator for Standard Mode", func() {
 		err = yaml.Unmarshal(instanceYamlFile, instance)
 		Expect(err).Should(Succeed())
 
+		ns, _ := env.GetConfig("Namespace")
+		Expect(instance.GetNamespace()).Should(Equal(ns.(string)))
+
 		key = types.NamespacedName{
 			Namespace: instance.GetNamespace(),
 			Name:      instance.GetName(),

@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strings"
 	"time"
+	"reflect"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
 	. "github.com/onsi/ginkgo"
@@ -61,6 +62,17 @@ func Start(config *Config) *KubernetesEnv {
 	env.installKruise()
 	env.installKvrocksOperator()
 	return env
+}
+
+func (env *KubernetesEnv) GetConfig(field string) (interface{}, error) {
+	r := reflect.ValueOf(env.config)
+	f := reflect.Indirect(r).FieldByName(field)
+
+	if f.IsValid() {
+		return f.Interface(), nil
+	}
+
+	return nil, fmt.Errorf("no such field: %s in config", field)
 }
 
 func (env *KubernetesEnv) installKubernetes() {
@@ -122,8 +134,10 @@ func (env *KubernetesEnv) installKruise() {
 	Expect(err).NotTo(HaveOccurred())
 
 	// Install OpenKruise using Helm
-	if !env.isHelmInstalled("kruise", "default") {
-		_, err = HelmTool("install", "kruise", "openkruise/kruise", "--version", env.config.KruiseVersion, "--wait")
+  helmList, err := HelmTool("list", "--all-namespaces")
+	Expect(err).NotTo(HaveOccurred())
+	if !strings.Contains(helmList, "kruise") {
+		_, err = HelmTool("install", "kruise", "openkruise/kruise", "--version", env.config.KruiseVersion, "-n", env.config.Namespace, "--create-namespace", "--wait")
 		Expect(err).NotTo(HaveOccurred())
 	}
 }
