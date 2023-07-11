@@ -179,6 +179,10 @@ func (env *KubernetesEnv) isHelmInstalled(name string, namespace string) bool {
 	return true
 }
 
+func (env *KubernetesEnv)ParseManifest(t kvrocksv1alpha1.KVRocksType) (*kvrocksv1alpha1.KVRocks, error){
+	return env.config.ParseManifest(t)
+}
+
 func loadKubernetesConfig(kubeConfig string) (*rest.Config, error) {
 	cfg, err := clientcmd.BuildConfigFromFlags("", kubeConfig)
 	if err != nil {

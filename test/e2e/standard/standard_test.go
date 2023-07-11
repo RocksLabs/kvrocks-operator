@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -22,7 +21,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"sigs.k8s.io/yaml"
 )
 
 var (
@@ -60,15 +58,8 @@ var _ = Describe("Operator for Standard Mode", func() {
 	)
 
 	BeforeEach(func() {
-		instance = &kvrocksv1alpha1.KVRocks{}
-		instanceYamlFile, err := ioutil.ReadFile("../../../examples/standard.yaml")
+		instance, err := env.ParseManifest(kvrocksv1alpha1.StandardType)
 		Expect(err).Should(Succeed())
-
-		err = yaml.Unmarshal(instanceYamlFile, instance)
-		Expect(err).Should(Succeed())
-
-		ns, _ := env.GetConfig("Namespace")
-		Expect(instance.GetNamespace()).Should(Equal(ns.(string)))
 
 		key = types.NamespacedName{
 			Namespace: instance.GetNamespace(),

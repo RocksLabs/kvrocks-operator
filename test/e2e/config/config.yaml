@@ -1,4 +1,6 @@
 kruiseVersion: 1.4.0
 clusterName: e2e-test
 namespace: kvrocks
+ManifestDir:
 kubeConfig:
+
