@@ -257,7 +257,7 @@ func checkKVRocks(instance *kvrocksv1alpha1.KVRocks) error {
 			return fmt.Errorf("reole label is incorrect,expect: %s, actual: %s", node.Role, pod.Labels[resources.RedisRole])
 		}
 		if node.Role == kvrocks.RoleMaster {
-			masterIP = append(masterIP, node.IP)
+			masterIP = append(masterIP, pod.Status.PodIP)
 		}
 		if node.Role == kvrocks.RoleSlaver {
 			curMaster, err := kvrocksClient.GetMaster(node.IP, password)
