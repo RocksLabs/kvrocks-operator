@@ -58,7 +58,8 @@ var _ = Describe("Operator for Standard Mode", func() {
 	)
 
 	BeforeEach(func() {
-		instance, err := env.ParseManifest(kvrocksv1alpha1.StandardType)
+		var err error
+		instance, err = env.ParseManifest(kvrocksv1alpha1.StandardType)
 		Expect(err).Should(Succeed())
 
 		key = types.NamespacedName{
