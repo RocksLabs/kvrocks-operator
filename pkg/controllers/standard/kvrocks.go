@@ -92,6 +92,10 @@ func (h *KVRocksStandardHandler) ensureKVRocksReplication() error {
 		}
 	}
 	h.log.V(1).Info("redis replication ok")
+	fmt.Println(h.instance)
+	fmt.Println(h.instance.Spec)
+	fmt.Println(h.instance.Spec.SentinelConfig)
+	fmt.Println(h.instance.Spec.SentinelConfig.EnableSentinel)
 	if h.instance.Spec.SentinelConfig.EnableSentinel {
 		return h.ensureSentinel(masterIP)
 	}

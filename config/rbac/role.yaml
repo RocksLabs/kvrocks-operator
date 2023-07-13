@@ -123,3 +123,29 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - kvrocks.com
+  resources:
+  - kvrocks
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - kvrocks.com
+  resources:
+  - kvrocks/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - kvrocks.com
+  resources:
+  - kvrocks/status
+  verbs:
+  - get
+  - patch
+  - update
