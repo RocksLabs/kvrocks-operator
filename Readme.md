@@ -17,7 +17,7 @@
 
 ```
 helm repo add openkruise https://openkruise.github.io/charts/
-jinxu95/kvrocks-operator
+helm repo update
 helm install kruise openkruise/kruise --version 1.4.0
 ```
 2. Create ns kvrocks
