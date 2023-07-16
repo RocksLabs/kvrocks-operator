@@ -286,24 +286,9 @@ status:
    - Check the cluster information topo relationship for each pod, if it is incorrect, refresh the topo organization
    - If +odown receives the message, it will refresh the cluster topo structure (note that slaveof no one operation is not allowed in cluster mode, that is to say, sentinel will not fail over the partition, but will only detect it)
 
-## exporter
+## Observability Configuration Guide
 
-```yaml
- - job_name: 'kvrocks'
-      kubernetes_sd_configs:
-      - role: pod
-      relabel_configs:
-      - source_labels: [__meta_kubernetes_pod_name]
-        action: keep
-        regex: kvrocks-standard-1-demo-.*
-      - source_labels: [__meta_kubernetes_pod_container_name]
-        action: keep
-        regex: kvrocks-exporter
-      - source_labels: [__meta_kubernetes_pod_ip]
-        regex: (.*)
-        target_label: __address__
-        replacement: $1:9121
-```
+Please refer to the [Observability Configuration Guide](/docs/observability.md) for more information.
 
 ## Development Guide
 
