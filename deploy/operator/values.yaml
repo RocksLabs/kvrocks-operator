@@ -1,5 +1,5 @@
 namePrefix: kvrocks-operator
-image: hulkdev/kvrocks-operator:latest
+image: jinxu95/kvrocks-operator:rename-crd
 
 managerNamespace:
 

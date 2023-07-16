@@ -50,7 +50,7 @@ rules:
       - update
       - watch
   - apiGroups:
-      - kvrocks.com
+      - apache.org
     resources:
       - kvrocks
     verbs:
@@ -62,13 +62,13 @@ rules:
       - update
       - watch
   - apiGroups:
-      - kvrocks.com
+      - apache.org
     resources:
       - kvrocks/finalizers
     verbs:
       - update
   - apiGroups:
-      - kvrocks.com
+      - apache.org
     resources:
       - kvrocks/status
     verbs:

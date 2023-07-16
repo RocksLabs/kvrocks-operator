@@ -37,7 +37,7 @@ Expected output:
 ```bash
 $ kubectl get crds
 NAME                           CREATED AT
-kvrocks.kvrocks.com            2023-04-22T06:23:33Z
+kvrocks.apache.org            2023-04-22T06:23:33Z
 ```
 
 ### Run the operator locally

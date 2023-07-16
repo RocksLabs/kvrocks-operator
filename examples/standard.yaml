@@ -1,4 +1,4 @@
-apiVersion: kvrocks.com/v1alpha1
+apiVersion: apache.org/v1alpha1
 kind: KVRocks
 metadata:
   name: kvrocks-standard-1-demo
@@ -40,9 +40,9 @@ spec:
     rocksdb.compression: "no"
     rocksdb.wal_ttl_seconds: "0"
     rocksdb.wal_size_limit_mb: "0"
-#  storage:
-#    size: 32Gi
-#    class: local-hostpath
+  storage:
+    size: 200Mi
+    class: standard
   toleration:
     - key: kvrocks
       effect: NoSchedule
@@ -52,8 +52,8 @@ spec:
       operator: Exists
   resources:
     limits:
-      cpu: 2
-      memory: 8Gi
+      cpu: 100m
+      memory: 1Gi
     requests:
-      cpu: 1
-      memory: 4Gi
+      cpu: 100m
+      memory: 1Gi

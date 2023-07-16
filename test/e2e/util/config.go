@@ -1,11 +1,11 @@
 package util
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"fmt"
 	"path/filepath"
-	
+
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
 	k8sYaml "sigs.k8s.io/yaml"
 )
@@ -54,8 +54,8 @@ func NewConfig(configFilePath string) (*Config, error) {
 	return config, nil
 }
 
-func (c *Config) ParseManifest(t kvrocksv1alpha1.KVRocksType) (*kvrocksv1alpha1.KVRocks, error){
-	path := filepath.Join(c.ManifestDir, string(t) + ".yaml")
+func (c *Config) ParseManifest(t kvrocksv1alpha1.KVRocksType) (*kvrocksv1alpha1.KVRocks, error) {
+	path := filepath.Join(c.ManifestDir, string(t)+".yaml")
 	instanceYamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err

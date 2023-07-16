@@ -80,7 +80,7 @@ func main() {
 		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "6bbbd80a.kvrocks.com",
+		LeaderElectionID:       "6bbbd80a.apache.org",
 		Namespace:              managerNamespace,
 	})
 	if err != nil {
