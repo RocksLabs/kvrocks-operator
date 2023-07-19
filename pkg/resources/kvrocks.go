@@ -93,7 +93,7 @@ func GetSentinelInstance(instance *kvrocksv1alpha1.KVRocks) *kvrocksv1alpha1.KVR
 					corev1.ResourceMemory: resource.MustParse("2Gi"),
 				},
 				Requests: corev1.ResourceList{
-					corev1.ResourceCPU:    resource.MustParse("1000m"),
+					corev1.ResourceCPU:    resource.MustParse("2000m"),
 					corev1.ResourceMemory: resource.MustParse("1Gi"),
 				},
 			},
