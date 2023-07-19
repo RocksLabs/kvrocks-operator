@@ -57,9 +57,9 @@ type KVRocksReconciler struct {
 	once   sync.Once
 }
 
-//+kubebuilder:rbac:groups=apache.org,resources=kvrocks,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=apache.org,resources=kvrocks/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=apache.org,resources=kvrocks/finalizers,verbs=update
+//+kubebuilder:rbac:groups=kvrocks.apache.org,resources=kvrocks,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=kvrocks.apache.org,resources=kvrocks/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=kvrocks.apache.org,resources=kvrocks/finalizers,verbs=update
 //+kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=core,resources=nodes,verbs=get;list;watch
 //+kubebuilder:rbac:groups=core,resources=configmaps,verbs=get;list;watch;create;update;patch;delete

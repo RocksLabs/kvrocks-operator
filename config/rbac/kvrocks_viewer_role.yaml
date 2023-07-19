@@ -5,7 +5,7 @@ metadata:
   name: kvrocks-viewer-role
 rules:
 - apiGroups:
-  - apache.org
+  - kvrocks.apache.org
   resources:
   - kvrocks
   verbs:
@@ -13,7 +13,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - apache.org
+  - kvrocks.apache.org
   resources:
   - kvrocks/status
   verbs:

@@ -54,7 +54,7 @@ Since kvrocks slot migration does not support migration operations, scaling will
 ## Introduction to CR
 
 ```yaml
-apiVersion: apache.org/v1alpha1
+apiVersion: kvrocks.apache.org/v1alpha1
 kind: KVRocks
 metadata:
    finalizers:

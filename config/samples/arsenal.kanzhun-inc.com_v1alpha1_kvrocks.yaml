@@ -1,4 +1,4 @@
-apiVersion: apache.org/v1alpha1
+apiVersion: kvrocks.apache.org/v1alpha1
 kind: KVRocks
 metadata:
   name: kvrocks-sample

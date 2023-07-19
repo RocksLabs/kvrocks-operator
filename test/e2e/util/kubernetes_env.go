@@ -146,7 +146,7 @@ func (env *KubernetesEnv) installKruise() {
 func (env *KubernetesEnv) installKvrocksOperator() {
 	fmt.Fprintf(GinkgoWriter, "install kvrocks operator\n")
 
-	if !env.isExistsCRD("kvrocks.apache.org") {
+	if !env.isExistsCRD("kvrocks.kvrocks.apache.org") {
 		_, err := KubectlTool("apply", "-f", "../../../deploy/crd/templates/crd.yaml")
 		Expect(err).NotTo(HaveOccurred())
 	}
