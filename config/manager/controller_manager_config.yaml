@@ -8,4 +8,4 @@ webhook:
   port: 9443
 leaderElection:
   leaderElect: true
-  resourceName: 6bbbd80a.kvrocks.com
+  resourceName: 6bbbd80a.kvrocks.apache.org

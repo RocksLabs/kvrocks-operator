@@ -1,4 +1,4 @@
-domain: kvrocks.com
+domain: kvrocks.apache.org
 layout:
 - go.kubebuilder.io/v3
 plugins:
@@ -11,8 +11,8 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: kvrocks.com
-  group: kvrocks.com
+  domain: kvrocks.apache.org
+  group: kvrocks.apache.org
   kind: KVRocks
   path: github.com/RocksLabs/kvrocks-operator/api/v1alpha1
   version: v1alpha1

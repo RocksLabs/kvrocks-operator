@@ -37,7 +37,7 @@ Expected output:
 ```bash
 $ kubectl get crds
 NAME                           CREATED AT
-kvrocks.kvrocks.com            2023-04-22T06:23:33Z
+kvrocks.kvrocks.apache.org            2023-04-22T06:23:33Z
 ```
 
 ### Run the operator locally
@@ -138,13 +138,13 @@ The binary would be generated in the `bin` directory
 To build a Docker/OCI-compatible image of the Kvrocks operator, run the following command:
 
 ```bash
-# build image with tag "apache.org/rockslabs/kvrocks-operator:latest"
+# build image with tag "kvrocks.apache.org/rockslabs/kvrocks-operator:latest"
 make docker-build
 
 # build image with tag "rockslabs/kvrocks-operator:latest"
 REGISTRY=rockslabs make docker-build
 
-# build image with tag "apache.org/rockslabs/kvrocks-operator:nightly"
+# build image with tag "kvrocks.apache.org/rockslabs/kvrocks-operator:nightly"
 TAG=nightly make docker-build
 ```
 

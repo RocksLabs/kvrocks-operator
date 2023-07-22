@@ -28,8 +28,8 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# kvrocks.com/kvrocks-operator-bundle:$VERSION and kvrocks.com/kvrocks-operator-catalog:$VERSION.
-IMAGE_TAG_BASE ?= kvrocks.com/kvrocks-operator
+# kvrocks.apache.org/kvrocks-operator-bundle:$VERSION and kvrocks.apache.org/kvrocks-operator-catalog:$VERSION.
+IMAGE_TAG_BASE ?= kvrocks.apache.org/kvrocks-operator
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
@@ -46,7 +46,7 @@ ifeq ($(USE_IMAGE_DIGESTS), true)
 	BUNDLE_GEN_FLAGS += --use-image-digests
 endif
 
-REGISTRY ?= apache.org/rockslabs
+REGISTRY ?= kvrocks.apache.org/rockslabs
 TAG ?= latest
 # Image URL to use all building/pushing image targets
 IMG ?= $(REGISTRY)/kvrocks-operator:$(TAG)

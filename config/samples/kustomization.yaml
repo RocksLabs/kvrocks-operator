@@ -1,4 +1,4 @@
 ## Append samples you want in your CSV to this file as resources ##
 resources:
-- kvrocks.com_v1alpha1_kvrocks.yaml
+- kvrocks.apache.org_v1alpha1_kvrocks.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

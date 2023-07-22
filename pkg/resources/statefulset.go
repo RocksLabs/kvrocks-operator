@@ -16,6 +16,7 @@ import (
 )
 
 var TerminationGracePeriodSeconds int64 = 20
+
 const DefaultStorageSize = "10Gi"
 
 func NewStatefulSet(instance *kvrocksv1alpha1.KVRocks, name string) *kruise.StatefulSet {

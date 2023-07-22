@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"time"
-	"reflect"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
 	. "github.com/onsi/ginkgo"
@@ -135,7 +135,7 @@ func (env *KubernetesEnv) installKruise() {
 	Expect(err).NotTo(HaveOccurred())
 
 	// Install OpenKruise using Helm
-  helmList, err := HelmTool("list", "--all-namespaces")
+	helmList, err := HelmTool("list", "--all-namespaces")
 	Expect(err).NotTo(HaveOccurred())
 	if !strings.Contains(helmList, "kruise") {
 		_, err = HelmTool("install", "kruise", "openkruise/kruise", "--version", env.config.KruiseVersion, "-n", env.config.Namespace, "--create-namespace", "--wait")
@@ -146,7 +146,7 @@ func (env *KubernetesEnv) installKruise() {
 func (env *KubernetesEnv) installKvrocksOperator() {
 	fmt.Fprintf(GinkgoWriter, "install kvrocks operator\n")
 
-	if !env.isExistsCRD("kvrocks.kvrocks.com") {
+	if !env.isExistsCRD("kvrocks.kvrocks.apache.org") {
 		_, err := KubectlTool("apply", "-f", "../../../deploy/crd/templates/crd.yaml")
 		Expect(err).NotTo(HaveOccurred())
 	}
@@ -179,7 +179,7 @@ func (env *KubernetesEnv) isHelmInstalled(name string, namespace string) bool {
 	return true
 }
 
-func (env *KubernetesEnv)ParseManifest(t kvrocksv1alpha1.KVRocksType) (*kvrocksv1alpha1.KVRocks, error){
+func (env *KubernetesEnv) ParseManifest(t kvrocksv1alpha1.KVRocksType) (*kvrocksv1alpha1.KVRocks, error) {
 	return env.config.ParseManifest(t)
 }
 
