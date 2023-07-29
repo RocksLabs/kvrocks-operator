@@ -1,0 +1,27 @@
+apiVersion: kvrocks.com/v1alpha1
+kind: KVRocks
+metadata:
+  name: sentinel-1
+  namespace: default
+spec:
+  image: redis:6.2.4
+  imagePullPolicy: IfNotPresent
+  replicas: 3
+  # TODO remove the master field
+  master: 0
+  password: c4ca4238a0b923820dcc509a6f75849b
+  type: sentinel
+  toleration:
+    - key: kvrocks
+      effect: NoSchedule
+      operator: Exists
+    - key: node
+      effect: NoSchedule
+      operator: Exists
+  resources:
+    limits:
+      cpu: 2
+      memory: 8Gi
+    requests:
+      cpu: 1
+      memory: 4Gi

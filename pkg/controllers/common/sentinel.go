@@ -11,7 +11,7 @@ import (
 )
 
 func (h *CommandHandler) EnsureSentinel(masterIP string, index ...int) (bool, error) {
-	sentinelPods, sentinelPassword, requeue, err := h.GetSentinel()
+	sentinelPods, sentinelPassword, requeue, err := h.GetOrCreateSentinel()
 	if err != nil || requeue {
 		return requeue, err
 	}
@@ -36,7 +36,11 @@ func (h *CommandHandler) EnsureSentinel(masterIP string, index ...int) (bool, er
 }
 
 func (h *CommandHandler) RemoveMonitor(masterName string, index ...int) (bool, error) {
-	sentinelPods, sentinelPassword, requeue, err := h.GetSentinel()
+	key := types.NamespacedName{
+		Namespace: h.instance.Namespace,
+		Name:      h.instance.Labels[resources.MonitoredBy],
+	}
+	sentinelPods, sentinelPassword, requeue, err := h.GetSentinel(key)
 	if err != nil || requeue {
 		return requeue, err
 	}
@@ -54,7 +58,7 @@ func (h *CommandHandler) RemoveMonitor(masterName string, index ...int) (bool, e
 	return false, nil
 }
 
-func (h *CommandHandler) GetSentinel() (*corev1.PodList, *string, bool, error) {
+func (h *CommandHandler) GetOrCreateSentinel() (*corev1.PodList, *string, bool, error) {
 	sentinel := resources.GetSentinelInstance(h.instance)
 	if err := h.k8s.CreateIfNotExistsKVRocks(sentinel); err != nil {
 		return nil, nil, false, err
@@ -63,6 +67,10 @@ func (h *CommandHandler) GetSentinel() (*corev1.PodList, *string, bool, error) {
 		Namespace: sentinel.Namespace,
 		Name:      sentinel.Name,
 	}
+	return h.GetSentinel(key)
+}
+
+func (h *CommandHandler) GetSentinel(key types.NamespacedName) (*corev1.PodList, *string, bool, error) {
 	sentinel, err := h.k8s.GetKVRocks(key)
 	if err != nil || sentinel.Status.Status != kvrocksv1alpha1.StatusRunning {
 		return nil, nil, true, err

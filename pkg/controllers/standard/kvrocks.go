@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
 	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
@@ -92,26 +91,6 @@ func (h *KVRocksStandardHandler) ensureKVRocksReplication() error {
 		}
 	}
 	h.log.V(1).Info("redis replication ok")
-	if h.instance.Spec.SentinelConfig.EnableSentinel {
-		return h.ensureSentinel(masterIP)
-	}
-	return nil
-}
-
-func (h *KVRocksStandardHandler) ensureSentinel(masterIP string) error {
-	commHandler := common.NewCommandHandler(h.instance, h.k8s, h.kvrocks, h.password)
-	requeue, err := commHandler.EnsureSentinel(masterIP)
-	h.requeue = requeue
-	if err != nil {
-		return err
-	}
-	if !controllerutil.ContainsFinalizer(h.instance, kvrocksv1alpha1.KVRocksFinalizer) {
-		controllerutil.AddFinalizer(h.instance, kvrocksv1alpha1.KVRocksFinalizer)
-		if err = h.k8s.UpdateKVRocks(h.instance); err != nil {
-			return err
-		}
-	}
-	h.log.V(1).Info("sentinel monitor ready")
 	return nil
 }
 

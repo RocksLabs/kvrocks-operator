@@ -192,7 +192,7 @@ func shouldNotRetry(err error) bool {
 
 func runIfInitialize(instance *kvrocksv1alpha1.KVRocks, log logr.Logger, k8sClient *k8s.Client) error {
 	labels := resources.MergeLabels(instance.Labels, resources.SelectorLabels(instance))
-	if instance.Spec.Type == kvrocksv1alpha1.StandardType || instance.Spec.Type == kvrocksv1alpha1.ClusterType {
+	if instance.Spec.Type == kvrocksv1alpha1.ClusterType {
 		sysId, _ := resources.ParseRedisName(instance.Name)
 		labels = resources.MergeLabels(labels, resources.MonitorLabels(resources.GetSentinelName(sysId)))
 	}
