@@ -17,7 +17,7 @@ func (h *KVRocksSentinelHandler) ensureSentinel() error {
 		return err
 	}
 	for _, kvrocks := range kvrockses.Items {
-		if _, ok := h.instance.Labels[resources.MonitoredBy]; !ok {
+		if _, ok := kvrocks.Labels[resources.MonitoredBy]; !ok {
 			continue
 		}
 		if kvrocks.Status.Status != kvrocksv1alpha1.StatusRunning {
@@ -81,6 +81,10 @@ func (h *KVRocksSentinelHandler) ensureMonitor(masterIP, masterName, password st
 		if err != nil || master != masterIP {
 			h.kvrocks.RemoveMonitor(sentinelIP, sentinelPassword, masterName)
 			if err := h.kvrocks.CreateMonitor(sentinelIP, sentinelPassword, masterName, masterIP, password); err != nil {
+				return err
+			}
+		} else { // if password is changed
+			if err = h.kvrocks.ResetMonitor(sentinelIP, sentinelPassword, masterName, password); err != nil {
 				return err
 			}
 		}

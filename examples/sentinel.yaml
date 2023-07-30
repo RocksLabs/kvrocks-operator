@@ -7,8 +7,6 @@ spec:
   image: redis:6.2.4
   imagePullPolicy: IfNotPresent
   replicas: 3
-  # TODO remove the master field
-  master: 0
   password: c4ca4238a0b923820dcc509a6f75849b
   type: sentinel
   toleration:
@@ -20,8 +18,8 @@ spec:
       operator: Exists
   resources:
     limits:
-      cpu: 2
-      memory: 8Gi
+      cpu: 500m
+      memory: 500Mi
     requests:
-      cpu: 1
-      memory: 4Gi
+      cpu: 500m
+      memory: 500Mi

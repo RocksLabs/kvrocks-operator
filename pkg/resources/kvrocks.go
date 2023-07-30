@@ -1,8 +1,6 @@
 package resources
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"strings"
@@ -10,7 +8,6 @@ import (
 
 	"github.com/go-logr/logr"
 	uuid "github.com/satori/go.uuid"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/rand"
 
@@ -75,21 +72,16 @@ func GetSentinelInstance(instance *kvrocksv1alpha1.KVRocks) *kvrocksv1alpha1.KVR
 			Namespace: instance.Namespace,
 		},
 		Spec: kvrocksv1alpha1.KVRocksSpec{
-			Image:           SentinelImage,
-			ImagePullPolicy: corev1.PullIfNotPresent,
-			Type:            kvrocksv1alpha1.SentinelType,
+			Image:           instance.Spec.Image,
+			ImagePullPolicy: instance.Spec.ImagePullPolicy,
+			Type:            instance.Spec.Type,
 			KVRocksConfig:   nil,
-			Replicas:        instance.Spec.SentinelConfig.Replicas,
-			Password: func(password string) string {
-				d := []byte(password)
-				m := md5.New()
-				m.Write(d)
-				return hex.EncodeToString(m.Sum(nil))
-			}(system),
-			Resources:    instance.Spec.SentinelConfig.Resources, //sentinel resources
-			NodeSelector: instance.Spec.NodeSelector,
-			Toleration:   instance.Spec.Toleration,
-			Affinity:     instance.Spec.Affinity,
+			Replicas:        instance.Spec.Replicas,
+			Password:        instance.Spec.Password,
+			Resources:       instance.Spec.Resources,
+			NodeSelector:    instance.Spec.NodeSelector,
+			Toleration:      instance.Spec.Toleration,
+			Affinity:        instance.Spec.Affinity,
 		},
 	}
 }

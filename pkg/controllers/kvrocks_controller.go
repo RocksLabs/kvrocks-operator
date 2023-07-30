@@ -71,7 +71,6 @@ type KVRocksReconciler struct {
 //+kubebuilder:rbac:groups=apps.kruise.io,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 
-
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
@@ -205,10 +204,11 @@ func runIfInitialize(instance *kvrocksv1alpha1.KVRocks, log logr.Logger, k8sClie
 			return err
 		}
 	}
-	if instance.Spec.Type == kvrocksv1alpha1.ClusterType && !instance.Spec.SentinelConfig.EnableSentinel {
-		instance.Spec.SentinelConfig.EnableSentinel = true
-		return k8sClient.UpdateKVRocks(instance)
-	}
+	// TODO wait for the relase of cluster mode
+	// if instance.Spec.Type == kvrocksv1alpha1.ClusterType && !instance.Spec.SentinelConfig.EnableSentinel {
+	// 	instance.Spec.SentinelConfig.EnableSentinel = true
+	// 	return k8sClient.UpdateKVRocks(instance)
+	// }
 	if instance.Status.Status == kvrocksv1alpha1.StatusNone {
 		log.Info("kvrocks is creating")
 		instance.Status.Status = kvrocksv1alpha1.StatusCreating

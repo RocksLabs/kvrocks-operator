@@ -3,6 +3,7 @@ package standard
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"k8s.io/apimachinery/pkg/types"
 
@@ -90,7 +91,39 @@ func (h *KVRocksStandardHandler) ensureKVRocksReplication() error {
 			}
 		}
 	}
-	h.log.V(1).Info("redis replication ok")
+	h.log.V(1).Info("kvrocks replication ok")
+	if v, ok := h.instance.Labels[resources.MonitoredBy]; ok {
+		return h.updateSentinelAnnotationCount(v)
+	}
+	return nil
+}
+
+func (h *KVRocksStandardHandler) updateSentinelAnnotationCount(sentinelName string) error {
+	sentinel, err := h.k8s.GetKVRocks(types.NamespacedName{
+		Namespace: h.instance.Namespace,
+		Name:      sentinelName,
+	})
+	if err != nil {
+		return err
+	}
+	annotations := sentinel.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
+	count, ok := annotations["change-count"]
+	if !ok {
+		count = "0"
+	}
+	countInt, err := strconv.Atoi(count)
+	if err != nil {
+		return err
+	}
+	countInt++
+	annotations["change-count"] = strconv.Itoa(countInt)
+	sentinel.SetAnnotations(annotations)
+	if err := h.k8s.UpdateKVRocks(sentinel); err != nil {
+		return err
+	}
 	return nil
 }
 
