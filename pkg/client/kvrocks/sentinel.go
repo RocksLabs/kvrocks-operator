@@ -52,6 +52,9 @@ func (s *Client) ResetMonitor(sentinelIP, sentinelPassword, master, password str
 	c := kvrocksSentinelClient(sentinelIP, sentinelPassword)
 	defer c.Close()
 	var err error
+	if err = c.Reset(ctx, master).Err(); err != nil {
+		return err
+	}
 	if err = c.Set(ctx, master, "AUTH-PASS", password).Err(); err != nil {
 		return err
 	}
@@ -69,4 +72,15 @@ func (s *Client) SubOdownMsg(ip, password string) (*redis.PubSub, func()) {
 
 	return pubsub, finalize
 
+}
+
+func (s *Client) ResetMonitorPassword(sentinelIP, sentinelPassword, master, password string) error {
+	c := kvrocksSentinelClient(sentinelIP, sentinelPassword)
+	defer c.Close()
+	var err error
+	if err = c.Set(ctx, master, "AUTH-PASS", password).Err(); err != nil {
+		return err
+	}
+	s.logger.V(1).Info("sentinel reset master password successfully", "master", master)
+	return nil
 }

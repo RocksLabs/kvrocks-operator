@@ -83,8 +83,8 @@ func (h *KVRocksSentinelHandler) ensureMonitor(masterIP, masterName, password st
 			if err := h.kvrocks.CreateMonitor(sentinelIP, sentinelPassword, masterName, masterIP, password); err != nil {
 				return err
 			}
-		} else { // if password is changed
-			if err = h.kvrocks.ResetMonitor(sentinelIP, sentinelPassword, masterName, password); err != nil {
+		} else { // maybe password change
+			if err = h.kvrocks.ResetMonitorPassword(sentinelIP, sentinelPassword, masterName, password); err != nil {
 				return err
 			}
 		}
