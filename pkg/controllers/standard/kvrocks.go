@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
 	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
@@ -92,6 +93,14 @@ func (h *KVRocksStandardHandler) ensureKVRocksReplication() error {
 		}
 	}
 	h.log.V(1).Info("kvrocks replication ok")
+	// add Finalizer
+	if !controllerutil.ContainsFinalizer(h.instance, kvrocksv1alpha1.KVRocksFinalizer) {
+		controllerutil.AddFinalizer(h.instance, kvrocksv1alpha1.KVRocksFinalizer)
+		if err := h.k8s.UpdateKVRocks(h.instance); err != nil {
+			return err
+		}
+	}
+	// notify sentinel to update
 	if v, ok := h.instance.Labels[resources.MonitoredBy]; ok {
 		return h.updateSentinelAnnotationCount(v)
 	}

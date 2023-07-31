@@ -2,7 +2,7 @@ apiVersion: kvrocks.apache.org/v1alpha1
 kind: KVRocks
 metadata:
   name: kvrocks-standard-1-demo
-  namespace: default
+  namespace: kvrocks
   labels:
     kvrocks/system: gt
     kvrocks/monitored-by: sentinel-1
@@ -52,8 +52,8 @@ spec:
       operator: Exists
   resources:
     limits:
-      cpu: 500m
-      memory: 500Mi
+      cpu: 2
+      memory: 8Gi
     requests:
-      cpu: 500m
-      memory: 500Mi
+      cpu: 1
+      memory: 4Gi
