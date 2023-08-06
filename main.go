@@ -34,6 +34,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	uberzap "go.uber.org/zap"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
 	"github.com/RocksLabs/kvrocks-operator/pkg/controllers"
@@ -66,8 +67,9 @@ func main() {
 	flag.IntVar(&maxConcurrentReconciles, "max-concurrent-reconciles", 1, "The number of maximum concurrent reconciles.")
 	flag.StringVar(&managerNamespace, "manager-namespace", v1.NamespaceAll, "manage namespace")
 	opts := zap.Options{
-		Development: true,
+		Development: false,
 		Level:       zapcore.InfoLevel,
+		ZapOpts:     []uberzap.Option{uberzap.AddCaller()},
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
