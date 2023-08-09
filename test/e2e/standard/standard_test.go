@@ -14,9 +14,11 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	kruise "github.com/openkruise/kruise-api/apps/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -53,70 +55,77 @@ var _ = Describe("Operator for Standard Mode", func() {
 	)
 
 	var (
-		instance *kvrocksv1alpha1.KVRocks
-		key      types.NamespacedName
+		kvrocksInstance  *kvrocksv1alpha1.KVRocks
+		sentinelInstance *kvrocksv1alpha1.KVRocks
+		kvrocksKey       types.NamespacedName
+		sentinelKey      types.NamespacedName
 	)
 
 	BeforeEach(func() {
 		var err error
-		instance, err = env.ParseManifest(kvrocksv1alpha1.StandardType)
+		kvrocksInstance, err = env.ParseManifest(kvrocksv1alpha1.StandardType)
+		Expect(err).Should(Succeed())
+		sentinelInstance, err = env.ParseManifest(kvrocksv1alpha1.SentinelType)
 		Expect(err).Should(Succeed())
 
-		key = types.NamespacedName{
-			Namespace: instance.GetNamespace(),
-			Name:      instance.GetName(),
+		kvrocksKey = types.NamespacedName{
+			Namespace: kvrocksInstance.GetNamespace(),
+			Name:      kvrocksInstance.GetName(),
 		}
 
-		Expect(env.Client.Create(ctx, instance)).Should(Succeed())
+		sentinelKey = types.NamespacedName{
+			Namespace: sentinelInstance.GetNamespace(),
+			Name:      sentinelInstance.GetName(),
+		}
+
+		Expect(env.Client.Create(ctx, kvrocksInstance)).Should(Succeed())
+		Expect(env.Client.Create(ctx, sentinelInstance)).Should(Succeed())
 		Eventually(func() error {
-			if err = env.Client.Get(ctx, key, instance); err != nil {
+			if err = env.Client.Get(ctx, kvrocksKey, kvrocksInstance); err != nil {
 				return err
 			}
-			if instance.Status.Status != kvrocksv1alpha1.StatusRunning {
+			if kvrocksInstance.Status.Status != kvrocksv1alpha1.StatusRunning {
 				return errors.New("kvrocks doesn't reach running status")
 			}
-			if !controllerutil.ContainsFinalizer(instance, kvrocksv1alpha1.KVRocksFinalizer) {
+			if !controllerutil.ContainsFinalizer(kvrocksInstance, kvrocksv1alpha1.KVRocksFinalizer) {
 				return errors.New("kvrocks doesn't contain finalizer")
 			}
 			return nil
 		}, timeout, interval).Should(Succeed())
 		Eventually(func() error {
-			return checkKVRocks(instance)
+			return checkKVRocks(kvrocksInstance, sentinelInstance)
 		}, timeout, interval).Should(Succeed())
 	})
 
 	AfterEach(func() {
-		Expect(env.Client.Delete(ctx, instance)).Should(Succeed())
+		Expect(env.Client.Delete(ctx, kvrocksInstance)).Should(Succeed())
+		Expect(env.Client.Delete(ctx, sentinelInstance)).Should(Succeed())
 		Eventually(func() bool {
-			return k8serr.IsNotFound(env.Client.Get(ctx, key, instance))
+			b1 := k8serr.IsNotFound(env.Client.Get(ctx, kvrocksKey, kvrocksInstance))
+			b2 := k8serr.IsNotFound(env.Client.Get(ctx, sentinelKey, sentinelInstance))
+			return b1 && b2
 		}, timeout, interval).Should(Equal(true))
 	})
 
 	It("test update kvrocks config", func() {
-		instance.Spec.KVRocksConfig["slowlog-log-slower-than"] = "250000"
-		instance.Spec.KVRocksConfig["profiling-sample-record-threshold-ms"] = "200"
-		Expect(env.Client.Update(ctx, instance)).Should(Succeed())
+		kvrocksInstance.Spec.KVRocksConfig["slowlog-log-slower-than"] = "250000"
+		kvrocksInstance.Spec.KVRocksConfig["profiling-sample-record-threshold-ms"] = "200"
+		Expect(env.Client.Update(ctx, kvrocksInstance)).Should(Succeed())
 		Eventually(func() error {
-			return checkKVRocks(instance)
+			return checkKVRocks(kvrocksInstance, sentinelInstance)
 		}, timeout, interval).Should(Succeed())
 	})
 
 	It("test change password", func() {
-		instance.Spec.Password = "39c5bb"
-		Expect(env.Client.Update(ctx, instance)).Should(Succeed())
+		kvrocksInstance.Spec.Password = "39c5bb"
+		Expect(env.Client.Update(ctx, kvrocksInstance)).Should(Succeed())
 		Eventually(func() error {
-			return checkKVRocks(instance)
+			return checkKVRocks(kvrocksInstance, sentinelInstance)
 		}, timeout, interval).Should(Succeed())
 	})
 
 	It("test recover when slave down", func() {
-		var pod corev1.Pod
-		key := types.NamespacedName{
-			Namespace: instance.GetNamespace(),
-			Name:      fmt.Sprintf("%s-%d", instance.GetName(), 1), // TODO remove 1
-		}
-		Expect(env.Client.Get(ctx, key, &pod)).Should(Succeed())
-		Expect(pod.Labels[resources.RedisRole]).Should(Equal(kvrocks.RoleSlaver))
+		key, pod := getKvrocksByRole(kvrocksInstance, kvrocks.RoleSlaver)
 		Expect(env.Client.Delete(ctx, &pod)).Should(Succeed())
 
 		time.Sleep(time.Second * 30)
@@ -133,18 +142,12 @@ var _ = Describe("Operator for Standard Mode", func() {
 			return nil
 		}, timeout, interval).Should(Succeed())
 		Eventually(func() error {
-			return checkKVRocks(instance)
+			return checkKVRocks(kvrocksInstance, sentinelInstance)
 		}, timeout, interval).Should(Succeed())
 	})
 
 	It("test recover when master down", func() {
-		var pod corev1.Pod
-		key := types.NamespacedName{
-			Namespace: instance.GetNamespace(),
-			Name:      fmt.Sprintf("%s-%d", instance.GetName(), 0), // TODO remove 0
-		}
-		Expect(env.Client.Get(ctx, key, &pod)).Should(Succeed())
-		Expect(pod.Labels[resources.RedisRole]).Should(Equal(kvrocks.RoleMaster))
+		key, pod := getKvrocksByRole(kvrocksInstance, kvrocks.RoleMaster)
 		Expect(env.Client.Delete(ctx, &pod)).Should(Succeed())
 		// wait pod reconstruction
 		time.Sleep(time.Second * 30)
@@ -161,43 +164,46 @@ var _ = Describe("Operator for Standard Mode", func() {
 			return nil
 		}, timeout, interval).Should(Succeed())
 		Eventually(func() error {
-			return checkKVRocks(instance)
+			return checkKVRocks(kvrocksInstance, sentinelInstance)
 		}, timeout, interval).Should(Succeed())
 	})
 
 	It("test recover when sentinel down", func() {
-		sentinel := resources.GetSentinelInstance(instance)
-		var pod corev1.Pod
-		key := types.NamespacedName{
-			Namespace: instance.GetNamespace(),
-			Name:      fmt.Sprintf("%s-%d", sentinel.GetName(), 0),
-		}
-		Expect(env.Client.Get(ctx, key, &pod)).Should(Succeed())
-		Expect(env.Client.Delete(ctx, &pod)).Should(Succeed())
+		podList, err := getSentinelPodList(sentinelInstance)
+		Expect(err).Should(Succeed())
+		Expect(len(podList.Items)).Should(Equal(int(sentinelInstance.Spec.Replicas)))
+		Expect(env.Client.Delete(ctx, &podList.Items[0])).Should(Succeed())
+
 		// wait pod reconstruction
 		time.Sleep(time.Second * 30)
 		Eventually(func() error {
-			if err := env.Client.Get(ctx, key, &pod); err != nil {
+			podList, err := getSentinelPodList(sentinelInstance)
+			if err != nil {
 				return err
 			}
-			if pod.Status.Phase != corev1.PodRunning {
-				return errors.New("please wait pod running")
+			if len(podList.Items) != int(sentinelInstance.Spec.Replicas) {
+				return fmt.Errorf("please wait pod running")
+			}
+			for _, pod := range podList.Items {
+				if pod.Status.Phase != corev1.PodRunning {
+					return errors.New("please wait pod running")
+				}
 			}
 			return nil
 		}, timeout, interval).Should(Succeed())
 		Eventually(func() error {
-			return checkKVRocks(instance)
+			return checkKVRocks(kvrocksInstance, sentinelInstance)
 		}, timeout, interval).Should(Succeed())
 	})
 
 	It("test shrink", func() {
-		Expect(env.Client.Get(ctx, key, instance)).Should(Succeed())
+		Expect(env.Client.Get(ctx, kvrocksKey, kvrocksInstance)).Should(Succeed())
 		// pod xx-1 should be reserved
-		instance.Spec.Replicas = 1
-		Expect(env.Client.Update(ctx, instance)).Should(Succeed())
+		kvrocksInstance.Spec.Replicas = 1
+		Expect(env.Client.Update(ctx, kvrocksInstance)).Should(Succeed())
 		var sts kruise.StatefulSet
 		Eventually(func() error {
-			Expect(env.Client.Get(ctx, key, &sts)).Should(Succeed())
+			Expect(env.Client.Get(ctx, kvrocksKey, &sts)).Should(Succeed())
 			if sts.Status.ReadyReplicas != int32(1) {
 				return errors.New("ready replicas error")
 			}
@@ -207,17 +213,17 @@ var _ = Describe("Operator for Standard Mode", func() {
 			return nil
 		}, timeout, interval).Should(Succeed())
 		Eventually(func() error {
-			return checkKVRocks(instance)
+			return checkKVRocks(kvrocksInstance, sentinelInstance)
 		}, timeout, interval).Should(Succeed())
 	})
 
 	It("test expansion", func() {
-		Expect(env.Client.Get(ctx, key, instance)).Should(Succeed())
-		instance.Spec.Replicas = 5
-		Expect(env.Client.Update(ctx, instance)).Should(Succeed())
+		Expect(env.Client.Get(ctx, kvrocksKey, kvrocksInstance)).Should(Succeed())
+		kvrocksInstance.Spec.Replicas = 5
+		Expect(env.Client.Update(ctx, kvrocksInstance)).Should(Succeed())
 		Eventually(func() error {
 			var sts kruise.StatefulSet
-			Expect(env.Client.Get(ctx, key, &sts)).Should(Succeed())
+			Expect(env.Client.Get(ctx, kvrocksKey, &sts)).Should(Succeed())
 			if sts.Status.ReadyReplicas != 5 {
 				return errors.New("replication error")
 			}
@@ -227,23 +233,23 @@ var _ = Describe("Operator for Standard Mode", func() {
 			return nil
 		}, timeout, interval).Should(Succeed())
 		Eventually(func() error {
-			return checkKVRocks(instance)
+			return checkKVRocks(kvrocksInstance, sentinelInstance)
 		}, timeout, interval).Should(Succeed())
 	})
 
 })
 
-func checkKVRocks(instance *kvrocksv1alpha1.KVRocks) error {
-	password := instance.Spec.Password
-	replicas := int(instance.Spec.Replicas)
+func checkKVRocks(kvrocksInstance, sentinelInstance *kvrocksv1alpha1.KVRocks) error {
+	password := kvrocksInstance.Spec.Password
+	replicas := int(kvrocksInstance.Spec.Replicas)
 	masterIP := []string{}
 	masterOfSlave := map[int]string{}
 
 	for index := 0; index < replicas; index++ {
 		var pod corev1.Pod
 		key := types.NamespacedName{
-			Namespace: instance.GetNamespace(),
-			Name:      fmt.Sprintf("%s-%d", instance.GetName(), index),
+			Namespace: kvrocksInstance.GetNamespace(),
+			Name:      fmt.Sprintf("%s-%d", kvrocksInstance.GetName(), index),
 		}
 		if err := env.Client.Get(ctx, key, &pod); err != nil {
 			return err
@@ -266,7 +272,7 @@ func checkKVRocks(instance *kvrocksv1alpha1.KVRocks) error {
 			}
 			masterOfSlave[index] = curMaster
 		}
-		for k, v := range instance.Spec.KVRocksConfig {
+		for k, v := range kvrocksInstance.Spec.KVRocksConfig {
 			curValue, err := kvrocksClient.GetConfig(node.IP, password, k)
 			if err != nil {
 				return err
@@ -285,33 +291,65 @@ func checkKVRocks(instance *kvrocksv1alpha1.KVRocks) error {
 		}
 	}
 
-	sentinel := resources.GetSentinelInstance(instance)
-	for index := 0; index < int(sentinel.Spec.Replicas); index++ {
-		var pod corev1.Pod
-		key := types.NamespacedName{
-			Namespace: sentinel.Namespace,
-			Name:      fmt.Sprintf("%s-%d", sentinel.Name, index),
-		}
-		if err := env.Client.Get(ctx, key, &pod); err != nil {
-			return err
-		}
-
-		_, name := resources.ParseRedisName(instance.Name)
-		master, err := kvrocksClient.GetMasterFromSentinel(pod.Status.PodIP, sentinel.Spec.Password, name)
+	podList, err := getSentinelPodList(sentinelInstance)
+	if err != nil {
+		return fmt.Errorf("get sentinel pod list error: %v", err)
+	}
+	for _, pod := range podList.Items {
+		_, name := resources.ParseRedisName(kvrocksInstance.Name)
+		master, err := kvrocksClient.GetMasterFromSentinel(pod.Status.PodIP, sentinelInstance.Spec.Password, name)
 		if err != nil {
 			return err
 		}
 		if master != masterIP[0] {
-			return fmt.Errorf("sentinel-%d  monitor master error message,masterIp expect: %s, actual: %s", index, masterIP[0], master)
+			return fmt.Errorf("sentinel %s  monitor master error message,masterIp expect: %s, actual: %s", pod.Name, masterIP[0], master)
 		}
 	}
 
 	var pvcList corev1.PersistentVolumeClaimList
-	if err := env.Client.List(ctx, &pvcList, client.InNamespace(instance.Namespace), client.MatchingLabels(instance.Labels)); err != nil {
+	if err := env.Client.List(ctx, &pvcList, client.InNamespace(kvrocksInstance.Namespace), client.MatchingLabels(kvrocksInstance.Labels)); err != nil {
 		return err
 	}
 	if len(pvcList.Items) != replicas {
 		return fmt.Errorf("number of pvc is incorrent, expect: %d, actual: %d", replicas, len(pvcList.Items))
 	}
 	return nil
+}
+
+func getSentinelPodList(sentinel *kvrocksv1alpha1.KVRocks) (*corev1.PodList, error) {
+	deployment := &appsv1.Deployment{}
+	key := types.NamespacedName{
+		Namespace: sentinel.Namespace,
+		Name:      sentinel.Name,
+	}
+
+	if err := env.Client.Get(ctx, key, deployment); err != nil {
+		return nil, err
+	}
+
+	labelSelector := labels.Set(deployment.Spec.Selector.MatchLabels).AsSelector()
+	podList := &corev1.PodList{}
+	listOpts := []client.ListOption{
+		client.InNamespace(sentinel.Namespace),
+		client.MatchingLabelsSelector{Selector: labelSelector},
+	}
+	if err := env.Client.List(ctx, podList, listOpts...); err != nil {
+		return nil, err
+	}
+	return podList, nil
+}
+
+func getKvrocksByRole(instance *kvrocksv1alpha1.KVRocks, role string) (key types.NamespacedName, pod corev1.Pod) {
+	replicas := int(instance.Spec.Replicas)
+	for i := 0; i < replicas; i++ {
+		key = types.NamespacedName{
+			Namespace: instance.GetNamespace(),
+			Name:      fmt.Sprintf("%s-%d", instance.GetName(), i),
+		}
+		Expect(env.Client.Get(ctx, key, &pod)).Should(Succeed())
+		if pod.Labels[resources.RedisRole] == role {
+			break
+		}
+	}
+	return
 }

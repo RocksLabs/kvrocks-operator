@@ -5,13 +5,13 @@ metadata:
   namespace: kvrocks
   labels:
     kvrocks/system: gt
+    kvrocks/monitored-by: sentinel-1
 spec:
   image: apache/kvrocks:nightly
   imagePullPolicy: IfNotPresent
   master: 1
   replicas: 3
   type: standard
-  enableSentinel: true
   password: "123456"
   kvrocksConfig:
     bind: "0.0.0.0"
@@ -40,9 +40,9 @@ spec:
     rocksdb.compression: "no"
     rocksdb.wal_ttl_seconds: "0"
     rocksdb.wal_size_limit_mb: "0"
-  # storage:
-  #   size: 32Gi
-  #   class: local-hostpath
+#  storage:
+#    size: 32Gi
+#    class: local-hostpath
   toleration:
     - key: kvrocks
       effect: NoSchedule

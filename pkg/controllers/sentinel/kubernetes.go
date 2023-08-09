@@ -14,20 +14,20 @@ func (h *KVRocksSentinelHandler) ensureKubernetes() error {
 	if err = h.k8s.CreateIfNotExistsService(service); err != nil {
 		return err
 	}
-	sts := resources.NewSentinelStatefulSet(h.instance)
-	if err = h.k8s.CreateIfNotExistsStatefulSet(sts); err != nil {
+	dep := resources.NewSentinelDeployment(h.instance)
+	if err = h.k8s.CreateIfNotExistsDeployment(dep); err != nil {
 		return err
 	}
-	sts, err = h.k8s.GetStatefulSet(h.key)
+	dep, err = h.k8s.GetDeployment(h.key)
 	if err != nil {
 		return err
 	}
-	if sts.Status.ReadyReplicas != *sts.Spec.Replicas {
-		h.log.Info("please wait statefulSet ready")
+	if dep.Status.ReadyReplicas != *dep.Spec.Replicas {
+		h.log.Info("please wait deployment ready")
 		h.requeue = true
 		return nil
 	}
-	pods, err := h.k8s.ListStatefulSetPods(h.key)
+	pods, err := h.k8s.ListDeploymentPods(h.key)
 	if err != nil {
 		return err
 	}

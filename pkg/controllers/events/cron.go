@@ -20,7 +20,7 @@ func (e *event) producer() {
 			continue
 		}
 		systemId := strings.Split(sentinel.Name, "-")[1]
-		pods, err := e.k8s.ListStatefulSetPods(types.NamespacedName{
+		pods, err := e.k8s.ListDeploymentPods(types.NamespacedName{
 			Namespace: sentinel.Namespace,
 			Name:      sentinel.Name,
 		})

@@ -993,7 +993,6 @@ spec:
                 type: string
             required:
             - image
-            - master
             - password
             - replicas
             - resources

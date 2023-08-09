@@ -25,6 +25,7 @@ import (
 
 	"github.com/go-logr/logr"
 	kruise "github.com/openkruise/kruise-api/apps/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -68,6 +69,7 @@ type KVRocksReconciler struct {
 //+kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=core,resources=persistentvolumeclaims,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps.kruise.io,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -159,6 +161,7 @@ func (r *KVRocksReconciler) SetupWithManager(mgr ctrl.Manager, maxConcurrentReco
 		For(&kvrocksv1alpha1.KVRocks{}).
 		Owns(&kruise.StatefulSet{}).
 		Owns(&corev1.Pod{}).
+		Owns(&appsv1.Deployment{}).
 		Complete(r)
 }
 
@@ -188,7 +191,7 @@ func shouldNotRetry(err error) bool {
 
 func runIfInitialize(instance *kvrocksv1alpha1.KVRocks, log logr.Logger, k8sClient *k8s.Client) error {
 	labels := resources.MergeLabels(instance.Labels, resources.SelectorLabels(instance))
-	if instance.Spec.Type == kvrocksv1alpha1.StandardType || instance.Spec.Type == kvrocksv1alpha1.ClusterType {
+	if instance.Spec.Type == kvrocksv1alpha1.ClusterType {
 		sysId, _ := resources.ParseRedisName(instance.Name)
 		labels = resources.MergeLabels(labels, resources.MonitorLabels(resources.GetSentinelName(sysId)))
 	}
@@ -201,10 +204,11 @@ func runIfInitialize(instance *kvrocksv1alpha1.KVRocks, log logr.Logger, k8sClie
 			return err
 		}
 	}
-	if instance.Spec.Type == kvrocksv1alpha1.ClusterType && !instance.Spec.EnableSentinel {
-		instance.Spec.EnableSentinel = true
-		return k8sClient.UpdateKVRocks(instance)
-	}
+	// TODO wait for the relase of cluster mode
+	// if instance.Spec.Type == kvrocksv1alpha1.ClusterType && !instance.Spec.SentinelConfig.EnableSentinel {
+	// 	instance.Spec.SentinelConfig.EnableSentinel = true
+	// 	return k8sClient.UpdateKVRocks(instance)
+	// }
 	if instance.Status.Status == kvrocksv1alpha1.StatusNone {
 		log.Info("kvrocks is creating")
 		instance.Status.Status = kvrocksv1alpha1.StatusCreating

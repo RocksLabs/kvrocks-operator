@@ -866,8 +866,6 @@ spec:
                         type: array
                     type: object
                 type: object
-              enableSentinel:
-                type: boolean
               image:
                 type: string
               imagePullPolicy:
@@ -993,7 +991,6 @@ spec:
                 type: string
             required:
             - image
-            - master
             - password
             - replicas
             - resources

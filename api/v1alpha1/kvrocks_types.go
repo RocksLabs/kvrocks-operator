@@ -32,15 +32,15 @@ type KVRocksSpec struct {
 	Type            KVRocksType       `json:"type"`
 	KVRocksConfig   map[string]string `json:"kvrocksConfig,omitempty"`
 	// RocksDBConfig   map[string]string            `json:"rocksDBConfig,omitempty"`
-	Replicas       int32                        `json:"replicas"`
-	Master         uint                         `json:"master"`
-	Password       string                       `json:"password"`
-	Resources      *corev1.ResourceRequirements `json:"resources"`
-	NodeSelector   map[string]string            `json:"nodeSelector,omitempty"`
-	Toleration     []corev1.Toleration          `json:"toleration,omitempty"`
-	Affinity       *corev1.Affinity             `json:"affinity,omitempty"`
-	Storage        *KVRocksStorage              `json:"storage,omitempty"`
-	EnableSentinel bool                         `json:"enableSentinel,omitempty"`
+	Replicas int32 `json:"replicas"`
+	// +optional
+	Master       uint                         `json:"master"`
+	Password     string                       `json:"password"`
+	Resources    *corev1.ResourceRequirements `json:"resources"`
+	NodeSelector map[string]string            `json:"nodeSelector,omitempty"`
+	Toleration   []corev1.Toleration          `json:"toleration,omitempty"`
+	Affinity     *corev1.Affinity             `json:"affinity,omitempty"`
+	Storage      *KVRocksStorage              `json:"storage,omitempty"`
 }
 
 // KVRocksStatus defines the observed state of KVRocks

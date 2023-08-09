@@ -63,7 +63,7 @@ func (h *KVRocksStandardHandler) Requeue() bool {
 }
 
 func (h *KVRocksStandardHandler) Finializer() error {
-	if !h.instance.Spec.EnableSentinel {
+	if _, ok := h.instance.Labels[resources.MonitoredBy]; !ok {
 		return nil
 	}
 	commHandler := common.NewCommandHandler(h.instance, h.k8s, h.kvrocks, h.password)
