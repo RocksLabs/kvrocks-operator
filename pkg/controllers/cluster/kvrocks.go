@@ -203,8 +203,8 @@ func (h *KVRocksClusterHandler) updatePodLabels(key types.NamespacedName, role s
 	if err != nil {
 		return err
 	}
-	if pod.Labels[resources.RedisRole] != role {
-		pod.Labels[resources.RedisRole] = role
+	if pod.Labels[resources.KvrocksRole] != role {
+		pod.Labels[resources.KvrocksRole] = role
 		if err = h.k8s.UpdatePod(pod); err != nil {
 			return err
 		}

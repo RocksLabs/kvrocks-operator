@@ -47,7 +47,9 @@ func NewKVRocksService(instance *kvrocksv1alpha1.KVRocks) *corev1.Service {
 					Port: kvrocks.KVRocksPort,
 				},
 			},
-			Selector: instance.Labels,
+			Selector: MergeLabels(instance.Labels, map[string]string{
+				KvrocksRole: kvrocks.RoleMaster,
+			}),
 		},
 	}
 }

@@ -6,7 +6,7 @@ import (
 
 const (
 	MonitoredBy = "kvrocks/monitored-by"
-	RedisRole   = "kvrocks/role"
+	KvrocksRole = "kvrocks/role"
 )
 
 func MergeLabels(allLabels ...map[string]string) map[string]string {
