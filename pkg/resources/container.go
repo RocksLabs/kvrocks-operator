@@ -35,7 +35,7 @@ func NewExporterContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 		Name:  "kvrocks-exporter",
 		Image: "hulkdev/kvrocks-exporter:latest",
 		Args: []string{
-			fmt.Sprintf("--kvrocks.addr=%s://localhost:%s", instance.Namespace, strconv.Itoa(kvrocks.KVRocksPort)),
+			fmt.Sprintf("--kvrocks.addr=http://localhost:%s", strconv.Itoa(kvrocks.KVRocksPort)),
 			fmt.Sprintf("--kvrocks.password=%s", instance.Spec.Password),
 		},
 		Ports: []corev1.ContainerPort{
