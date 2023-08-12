@@ -133,6 +133,7 @@ func (h *KVRocksStandardHandler) updateSentinelAnnotationCount(sentinelName stri
 	if err := h.k8s.UpdateKVRocks(sentinel); err != nil {
 		return err
 	}
+	h.log.V(1).Info("sentinel monitor ready")
 	return nil
 }
 

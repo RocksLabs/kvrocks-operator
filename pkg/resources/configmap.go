@@ -50,12 +50,12 @@ const (
 	start = `
 #!/bin/bash
 sleep 15
-./bin/kvrocks -c /conf/kvrocks.conf
+./bin/kvrocks -c /var/lib/kvrocks/conf/kvrocks.conf
 `
 
 	readinessProbe = `
 #!/bin/sh
-timeout 30 redis-cli -a $(cat /conf/password) --no-auth-warning ping || timeout 30 redis-cli --no-auth-warning ping
+timeout 30 redis-cli -a $(cat /var/lib/kvrocks/conf/password) --no-auth-warning ping || timeout 30 redis-cli --no-auth-warning ping
 `
 )
 
@@ -92,7 +92,7 @@ func NewKVRocksConfigMap(instance *kvrocksv1alpha1.KVRocks) *corev1.ConfigMap {
 	// set auth config
 	buffer.WriteString(fmt.Sprintf("masterauth %s\n", instance.Spec.Password))
 	buffer.WriteString(fmt.Sprintf("requirepass %s\n", instance.Spec.Password))
-	buffer.WriteString("dir /data\n")
+	buffer.WriteString("dir /var/lib/kvrocks\n")
 	if instance.Spec.Type == kvrocksv1alpha1.ClusterType {
 		buffer.WriteString("cluster-enabled yes\n")
 	}
