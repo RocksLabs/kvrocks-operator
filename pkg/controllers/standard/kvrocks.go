@@ -146,8 +146,8 @@ func (h *KVRocksStandardHandler) updateKVRocksRole(podID int, role string) error
 	if err != nil {
 		return err
 	}
-	if pod.Labels[resources.RedisRole] != role {
-		pod.Labels[resources.RedisRole] = role
+	if pod.Labels[resources.KvrocksRole] != role {
+		pod.Labels[resources.KvrocksRole] = role
 		return h.k8s.UpdatePod(pod)
 	}
 	return nil

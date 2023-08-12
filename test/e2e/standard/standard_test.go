@@ -152,8 +152,8 @@ var _ = Describe("Operator for Standard Mode", func() {
 			if pod.Status.Phase != corev1.PodRunning {
 				return errors.New("please wait pod running")
 			}
-			if pod.Labels[resources.RedisRole] != kvrocks.RoleSlaver {
-				return fmt.Errorf("role is incorrect, expect: %s, actual: %s", kvrocks.RoleSlaver, pod.Labels[resources.RedisRole])
+			if pod.Labels[resources.KvrocksRole] != kvrocks.RoleSlaver {
+				return fmt.Errorf("role is incorrect, expect: %s, actual: %s", kvrocks.RoleSlaver, pod.Labels[resources.KvrocksRole])
 			}
 			return nil
 		}, timeout, interval).Should(Succeed())
@@ -174,8 +174,8 @@ var _ = Describe("Operator for Standard Mode", func() {
 			if pod.Status.Phase != corev1.PodRunning {
 				return errors.New("please wait pod running")
 			}
-			if pod.Labels[resources.RedisRole] != kvrocks.RoleSlaver {
-				return fmt.Errorf("role is incorrect, expect: %s, actual: %s", kvrocks.RoleSlaver, pod.Labels[resources.RedisRole])
+			if pod.Labels[resources.KvrocksRole] != kvrocks.RoleSlaver {
+				return fmt.Errorf("role is incorrect, expect: %s, actual: %s", kvrocks.RoleSlaver, pod.Labels[resources.KvrocksRole])
 			}
 			return nil
 		}, timeout, interval).Should(Succeed())
@@ -275,8 +275,8 @@ func checkKVRocks(kvrocksInstance, sentinelInstance *kvrocksv1alpha1.KVRocks) er
 		if err != nil {
 			return err
 		}
-		if node.Role != pod.Labels[resources.RedisRole] {
-			return fmt.Errorf("reole label is incorrect,expect: %s, actual: %s", node.Role, pod.Labels[resources.RedisRole])
+		if node.Role != pod.Labels[resources.KvrocksRole] {
+			return fmt.Errorf("reole label is incorrect,expect: %s, actual: %s", node.Role, pod.Labels[resources.KvrocksRole])
 		}
 		if node.Role == kvrocks.RoleMaster {
 			masterIP = append(masterIP, node.IP)
@@ -363,7 +363,7 @@ func getKvrocksByRole(instance *kvrocksv1alpha1.KVRocks, role string) (key types
 			Name:      fmt.Sprintf("%s-%d", instance.GetName(), i),
 		}
 		Expect(env.Client.Get(ctx, key, &pod)).Should(Succeed())
-		if pod.Labels[resources.RedisRole] == role {
+		if pod.Labels[resources.KvrocksRole] == role {
 			break
 		}
 	}
