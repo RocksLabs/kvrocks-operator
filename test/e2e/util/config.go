@@ -23,6 +23,7 @@ type Config struct {
 	ClusterName   string `yaml:"clusterName"`
 	Namespace     string `yaml:"namespace"`
 	KubeConfig    string `yaml:"kubeConfig"`
+	ChaosMeshEnabled bool   `yaml:"chaosMeshEnabled"`
 	ManifestDir   string `yaml:"manifestDir"`
 }
 

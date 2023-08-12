@@ -20,6 +20,7 @@ kruiseVersion: 1.4.0
 clusterName: e2e-test
 namespace: kvrocks
 manifestDir: /path/to/your/manifests
+chaosMeshEnabled: true
 kubeConfig:
 ```
 The above config.yaml is the default config file, and it performs the following actions:
@@ -32,6 +33,8 @@ The above config.yaml is the default config file, and it performs the following 
 
 4. Installs kvrocks from the YAML files found in the `manifestDir` directory. The default value `../../../examples/`
 
+5. We use the `chaosmesh` tool to kill kvrocks operator every two minutes. If you want to disable this feature, you can set `chaosMeshEnabled` to `false`.
+
 If you want to run the e2e test in a deployed cluster, you can use the following config file:
 
 ```yaml
@@ -39,6 +42,7 @@ kruiseVersion: 1.4.0
 clusterName: e2e-test
 namespace: kvrocks
 manifestDir: /path/to/your/manifests
+chaosMeshEnabled: true
 kubeConfig: /path/to/your/kubeconfig
 ```
 Note that, you should ensure the local environment can connect to the cluster, and the `clusterName` needs to match the `cluster` in the `current-context` of your kubeconfig.
