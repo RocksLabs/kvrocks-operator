@@ -29,6 +29,7 @@ spec:
     metadata:
       labels:
         control-plane: controller-manager
+        app: kvrocks-operator-controller-manager
     spec:
       containers:
         - args:
