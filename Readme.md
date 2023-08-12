@@ -286,6 +286,9 @@ status:
    - Check the cluster information topo relationship for each pod, if it is incorrect, refresh the topo organization
    - If +odown receives the message, it will refresh the cluster topo structure (note that slaveof no one operation is not allowed in cluster mode, that is to say, sentinel will not fail over the partition, but will only detect it)
 
+## Observability Configuration Guide
+
+Please refer to the [Observability Configuration Guide](/docs/observability.md) for more information.
 
 ## Development Guide
 

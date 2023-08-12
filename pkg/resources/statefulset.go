@@ -147,7 +147,7 @@ func NewSentinelStatefulSet(instance *kvrocksv1alpha1.KVRocks) *kruise.StatefulS
 
 func NewReplicationStatefulSet(instance *kvrocksv1alpha1.KVRocks) *kruise.StatefulSet {
 	sts := NewStatefulSet(instance, GetStatefulSetName(instance.Name))
-	sts.Spec.Template.Spec.Containers = append(sts.Spec.Template.Spec.Containers, *NewInstanceContainer(instance))
+	sts.Spec.Template.Spec.Containers = append(sts.Spec.Template.Spec.Containers, *NewInstanceContainer(instance), *NewExporterContainer(instance))
 	return sts
 }
 
