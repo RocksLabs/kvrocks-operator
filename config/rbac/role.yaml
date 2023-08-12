@@ -6,9 +6,9 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - kvrocks.apache.org
+  - apps
   resources:
-  - kvrocks
+  - deployments
   verbs:
   - create
   - delete
@@ -17,20 +17,6 @@ rules:
   - patch
   - update
   - watch
-- apiGroups:
-  - kvrocks.apache.org
-  resources:
-  - kvrocks/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - kvrocks.apache.org
-  resources:
-  - kvrocks/status
-  verbs:
-  - get
-  - patch
-  - update
 - apiGroups:
   - apps.kruise.io
   resources:
@@ -123,3 +109,29 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - kvrocks.apache.org
+  resources:
+  - kvrocks
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - kvrocks.apache.org
+  resources:
+  - kvrocks/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - kvrocks.apache.org
+  resources:
+  - kvrocks/status
+  verbs:
+  - get
+  - patch
+  - update
