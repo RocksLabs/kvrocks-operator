@@ -28,13 +28,13 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	kruise "github.com/openkruise/kruise-api"
+	uberzap "go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	uberzap "go.uber.org/zap"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
 	"github.com/RocksLabs/kvrocks-operator/pkg/controllers"

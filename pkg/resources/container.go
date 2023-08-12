@@ -11,7 +11,7 @@ import (
 )
 
 func NewSentinelContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
-	container := newKVRocksContainer(instance)
+	container := newSentinelContainer(instance)
 	container.Command = []string{"sh", "-c", "cp -n /conf/sentinel.conf /data/sentinel.conf; redis-server /data/sentinel.conf --sentinel"}
 	container.Ports = []corev1.ContainerPort{{
 		Name:          "sentinel",
@@ -22,7 +22,7 @@ func NewSentinelContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 
 func NewInstanceContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 	container := newKVRocksContainer(instance)
-	container.Command = []string{"sh", "/conf/start.sh"}
+	container.Command = []string{"sh", "/var/lib/kvrocks/conf/start.sh"}
 	container.Ports = []corev1.ContainerPort{{
 		Name:          "kvrocks",
 		ContainerPort: kvrocks.KVRocksPort,
@@ -47,11 +47,44 @@ func NewExporterContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 	}
 }
 
-func newKVRocksContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
-	cmd := []string{"sh", "/conf/readiness_probe.sh"}
-	if instance.Spec.Type == kvrocksv1alpha1.SentinelType {
-		cmd = []string{"redis-cli", "-p", "26379", "ping"}
+func newSentinelContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
+	cmd := []string{"redis-cli", "-p", "26379", "ping"}
+	handler := corev1.ProbeHandler{
+		Exec: &corev1.ExecAction{
+			Command: cmd,
+		},
 	}
+	container := &corev1.Container{
+		Name:            "sentinel",
+		Image:           instance.Spec.Image,
+		ImagePullPolicy: instance.Spec.ImagePullPolicy,
+		Resources:       *instance.Spec.Resources,
+		VolumeMounts: []corev1.VolumeMount{
+			{
+				Name:      "data",
+				MountPath: "/data",
+			},
+			{
+				Name:      "conf",
+				MountPath: "/conf",
+			},
+		},
+		ReadinessProbe: &corev1.Probe{
+			TimeoutSeconds:   5,
+			ProbeHandler:     handler,
+			FailureThreshold: 6,
+		},
+		LivenessProbe: &corev1.Probe{
+			TimeoutSeconds:   5,
+			ProbeHandler:     handler,
+			FailureThreshold: 6,
+		},
+	}
+	return container
+}
+
+func newKVRocksContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
+	cmd := []string{"sh", "/var/lib/kvrocks/conf/readiness_probe.sh"}
 	handler := corev1.ProbeHandler{
 		Exec: &corev1.ExecAction{
 			Command: cmd,
@@ -65,11 +98,11 @@ func newKVRocksContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 		VolumeMounts: []corev1.VolumeMount{
 			{
 				Name:      "data",
-				MountPath: "/data",
+				MountPath: "/var/lib/kvrocks",
 			},
 			{
 				Name:      "conf",
-				MountPath: "/conf",
+				MountPath: "/var/lib/kvrocks/conf",
 			},
 		},
 		ReadinessProbe: &corev1.Probe{
