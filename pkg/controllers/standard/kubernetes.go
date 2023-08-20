@@ -28,7 +28,7 @@ func (h *KVRocksStandardHandler) ensureKubernetes() error {
 	}
 	h.password = oldCM.Data["password"]
 	sts := resources.NewReplicationStatefulSet(h.instance)
-	if err = h.k8s.CreateIfNotExistsStatefulSet(sts); err != nil {
+	if err = h.k8s.CreateStatefulSetOrUpdateImage(sts); err != nil {
 		return err
 	}
 	oldSts, err := h.k8s.GetStatefulSet(h.key)

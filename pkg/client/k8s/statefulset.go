@@ -63,6 +63,24 @@ func (c *Client) CreateOrUpdateStatefulSet(sts *kruise.StatefulSet) error {
 	return c.UpdateStatefulSet(sts)
 }
 
+func (c *Client) CreateStatefulSetOrUpdateImage(sts *kruise.StatefulSet) error {
+	oldSts, err := c.GetStatefulSet(types.NamespacedName{
+		Namespace: sts.Namespace,
+		Name:      sts.Name,
+	})
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return c.CreateIfNotExistsStatefulSet(sts)
+		}
+		return err
+	}
+	if oldSts.Spec.Template.Spec.Containers[0].Image == sts.Spec.Template.Spec.Containers[0].Image && oldSts.Spec.Template.Spec.Containers[1].Image == sts.Spec.Template.Spec.Containers[1].Image {
+		return nil
+	}
+	sts.ResourceVersion = oldSts.ResourceVersion
+	return c.UpdateStatefulSet(sts)
+}
+
 func (c *Client) ListStatefulSets(namespace string, labels map[string]string) (*kruise.StatefulSetList, error) {
 	var stsList kruise.StatefulSetList
 	if err := c.client.List(ctx, &stsList, client.InNamespace(namespace), client.MatchingLabels(labels)); err != nil {
