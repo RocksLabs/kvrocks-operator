@@ -20,6 +20,7 @@ kubectl create ns kvrocks
 
 3. Use helm to install and manage the crd/operator 
 ```
+git clone https://github.com/RocksLabs/kvrocks-operator.git
 helm install kvrocks-crd deploy/crd -n kvrocks
 helm install kvrocks-operator deploy/operator -n kvrocks
 ```
