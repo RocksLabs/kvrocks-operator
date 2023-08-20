@@ -39,7 +39,7 @@ func NewStatefulSet(instance *kvrocksv1alpha1.KVRocks, name string) *kruise.Stat
 			UpdateStrategy: kruise.StatefulSetUpdateStrategy{
 				RollingUpdate: &kruise.RollingUpdateStatefulSetStrategy{
 					PodUpdatePolicy: kruise.InPlaceIfPossiblePodUpdateStrategyType,
-					Paused:          true,
+					Paused:          false,
 					InPlaceUpdateStrategy: &pub.InPlaceUpdateStrategy{
 						GracePeriodSeconds: 10,
 					},
