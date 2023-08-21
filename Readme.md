@@ -53,5 +53,8 @@ Please refer to the [Observability Configuration Guide](/docs/observability.md) 
 
 Please refer to the [Development Guide](/docs/development.md) for more information.
 
+## Design Details
+For more design etails, please refer to [Design Document](/docs/design.md).
+
 ## Community 
 **Feel free to ask us any questions through [issues](https://github.com/KvrocksLabs/kvrocks-operator/issues) or [slack](https://kvrocks.slack.com/ssb/redirect#/shared-invite/email)**
