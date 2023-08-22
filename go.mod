@@ -1,6 +1,6 @@
 module github.com/RocksLabs/kvrocks-operator
 
-go 1.17
+go 1.19
 
 require (
 	github.com/chaos-mesh/chaos-mesh/api/v1alpha1 v0.0.0-20220226050744-799408773657
