@@ -4,7 +4,6 @@ metadata:
   name: kvrocks-standard-1-demo
   namespace: kvrocks
   labels:
-    kvrocks/system: gt
     kvrocks/monitored-by: sentinel-1
 spec:
   image: apache/kvrocks:nightly
