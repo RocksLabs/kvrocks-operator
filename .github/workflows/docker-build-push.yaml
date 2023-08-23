@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
   push:
-    branches:
-      - 'unstable'
+    tags:
+      - 'v*'
 
 jobs:
   docker-build-push:
@@ -36,12 +36,13 @@ jobs:
           # fork friendly ^^
           DOCKER_REPO: docker.io/${{ secrets.DOCKER_USERNAME }}/kvrocks-operator
         run: |
+          TAG_NAME=${GITHUB_REF/refs\/tags\//}
           docker buildx build \
           --platform linux/amd64,linux/arm64 \
           --label "org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/kvrocks-operator" \
           --label "org.opencontainers.image.description=kvrocks-operator image" \
           --label "org.opencontainers.image.licenses=Apache-2.0" \
           --push \
-          -t ${DOCKER_REPO}:latest \
+          -t ${DOCKER_REPO}:${TAG_NAME} \
           -f Dockerfile \
           .
