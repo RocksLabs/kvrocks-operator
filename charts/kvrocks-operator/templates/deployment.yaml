@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: {{ .Values.namePrefix }}-controller-manager-metrics-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+    - name: https
+      port: 8443
+      targetPort: https
+  selector:
+    control-plane: controller-manager
+---
+apiVersion: apps.kruise.io/v1alpha1
+kind: CloneSet
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: {{ .Values.namePrefix }}-controller-manager
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+        app: kvrocks-operator-controller-manager
+    spec:
+      containers:
+        - args:
+            - --health-probe-bind-address=:8081
+            - --metrics-bind-address=127.0.0.1:8080
+            - --leader-elect
+            - --max-concurrent-reconciles={{ .Values.maxConcurrentReconciles }}
+            - --zap-log-level={{ .Values.logLevel }}
+            - --manager-namespace={{ .Values.managerNamespace }}
+          command:
+            - /manager
+          image: {{ .Values.image }}
+          {{- with .Values.imagePullPolicy }}
+          imagePullPolicy: {{ . }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          name: manager
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+        - args:
+            - --secure-listen-address=0.0.0.0:8443
+            - --upstream=http://127.0.0.1:8080/
+            - --logtostderr=true
+            - --v=10
+          image: {{ .Values.kubeRBACProxyImage }}
+          name: kube-rbac-proxy
+          ports:
+            - containerPort: 8443
+              name: https
+          resources:
+            limits:
+              cpu: 100m
+              memory: 30Mi
+            requests:
+              cpu: 100m
+              memory: 20Mi
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: {{ .Values.namePrefix }}-controller-manager
+      terminationGracePeriodSeconds: 10
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

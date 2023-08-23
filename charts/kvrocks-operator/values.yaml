@@ -1,0 +1,28 @@
+namePrefix: kvrocks-operator
+image: hulkdev/kvrocks-operator:latest
+
+managerNamespace:
+
+imagePullPolicy: Always
+imagePullSecrets:
+
+kubeRBACProxyImage: bitnami/kube-rbac-proxy:0.14.0
+
+resources:
+  requests:
+    memory: "1Gi"
+    cpu: "1000m"
+  limits:
+    memory: "4Gi"
+    cpu: "4000m"
+
+# MaxConcurrentReconciles is the maximum number of concurrent Reconciles which can be run.
+maxConcurrentReconciles: 1024
+
+# Level to configure the verbosity of logging. Can be one of 'debug', 'info', 'error'
+# or any integer value > 0 which corresponds to custom debug levels of increasing verbosity"
+logLevel: info
+
+nodeSelector:
+
+tolerations:
