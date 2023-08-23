@@ -11,4 +11,15 @@ entries:
     urls:
     - https://github.com/jiayouxujin/kvrocks-operator/releases/download/kvrocks-operator-0.1.0/kvrocks-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2023-08-23T10:45:25.30151507Z"
+  kvrocks-operator-test:
+  - apiVersion: v1
+    appVersion: 2.25.0
+    created: "2023-08-23T13:25:16.054702016Z"
+    description: A Helm chart for kvrocks operator
+    digest: a99a2d29884e0db87560ed1a2d097d441b706d46289efd0cad6fe9ebe7e01ef5
+    name: kvrocks-operator-test
+    type: application
+    urls:
+    - https://github.com/jiayouxujin/kvrocks-operator/releases/download/kvrocks-operator-test-0.1.1/kvrocks-operator-test-0.1.1.tgz
+    version: 0.1.1
+generated: "2023-08-23T13:25:16.054708516Z"
