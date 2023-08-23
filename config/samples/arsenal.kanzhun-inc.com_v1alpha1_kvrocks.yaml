@@ -1,6 +1,0 @@
-apiVersion: kvrocks.apache.org/v1alpha1
-kind: KVRocks
-metadata:
-  name: kvrocks-sample
-spec:
-  # TODO(user): Add fields here

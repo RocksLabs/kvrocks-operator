@@ -1,6 +1,0 @@
-apiVersion: v1
-name: kvrocks-crd
-description: A Helm chart for kvrocks crd
-type: application
-version: 0.1.0
-appVersion: "3.25.0"
