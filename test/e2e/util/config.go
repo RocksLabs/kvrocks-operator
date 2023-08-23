@@ -2,8 +2,10 @@ package util
 
 import (
 	"fmt"
+	"os"
+
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
+
 	"path/filepath"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
@@ -30,7 +32,7 @@ type Config struct {
 func NewConfig(configFilePath string) (*Config, error) {
 	config := &Config{}
 
-	configData, err := ioutil.ReadFile(configFilePath)
+	configData, err := os.ReadFile(configFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +59,7 @@ func NewConfig(configFilePath string) (*Config, error) {
 
 func (c *Config) ParseManifest(t kvrocksv1alpha1.KVRocksType) (*kvrocksv1alpha1.KVRocks, error) {
 	path := filepath.Join(c.ManifestDir, string(t)+".yaml")
-	instanceYamlFile, err := ioutil.ReadFile(path)
+	instanceYamlFile, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
