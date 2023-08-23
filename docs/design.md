@@ -18,10 +18,6 @@
 1. Reduce the spec.replicas field, but the number of replicas after shrinking must be an odd number and must be greater than or equal to 3
 2. Modify the number of quorum to (number of copies/2)+1
 
-### Delete
-
-1. If sentinel still has a master to monitor, it is not allowed to delete the sentinel cluster.
-
 ### Fault Detection Recovery
 
 1. When an event of sentinel type is received, the following steps will be performed
