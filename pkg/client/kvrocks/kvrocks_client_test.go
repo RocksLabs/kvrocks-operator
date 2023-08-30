@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
+	uuid "github.com/google/uuid"
 	"github.com/joaojeronimo/go-crc16"
-	uuid "github.com/satori/go.uuid"
 	"k8s.io/apimachinery/pkg/util/rand"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -126,7 +126,7 @@ var key = []byte{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 
 func SetClusterNodeId() string {
 	rand.Seed(time.Now().Unix())
-	uid := uuid.NewV4().String()
+	uid := uuid.New().String()
 	for i := 1; i <= 4; i++ {
 		v1 := key[rand.Intn(len(key))]
 		v2 := key[rand.Intn(len(key))]
