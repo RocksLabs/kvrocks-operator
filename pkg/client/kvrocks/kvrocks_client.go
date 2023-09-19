@@ -15,13 +15,23 @@ import (
 var ctx = context.TODO()
 
 const (
-	KVRocksPort   = 6379
-	SentinelPort  = 26379
-	SuperUser     = "superuser"
-	RoleMaster    = "master"
-	RoleSlaver    = "slave"
-	Quorum        = 2
-	HashSlotCount = 16384
+	KVRocksPort  = 6379
+	SentinelPort = 26379
+	SuperUser    = "superuser"
+	RoleMaster   = "master"
+	RoleSlaver   = "slave"
+	Quorum       = 2
+	MinSlotID    = 0
+	MaxSlotID    = 16383
+
+	EtcdStatefulName = "etcd0"
+	EtcdServiceName  = "etcd0-service"
+	EtcdClientPort   = 2379
+	EtcdServerPort   = 2380
+
+	ControllerServiceName    = "controller-service"
+	ControllerPort           = 9379
+	ControllerDeploymentName = "kvrocks-controller"
 )
 
 const ErrPassword = "ERR invalid password"
@@ -36,17 +46,11 @@ type Node struct {
 	Expected int
 	Failover bool
 	Migrate  []MigrateMsg
-	Import   []ImportMsg
-}
-
-type ImportMsg struct {
-	SrcNodeId string
-	Slots     []int
 }
 
 type MigrateMsg struct {
-	DstNodeID string
-	Slots     []int
+	Shard int
+	Slots []int
 }
 
 type Client struct {
@@ -68,13 +72,6 @@ func kvrocksSentinelClient(ip, password string) *client.SentinelClient {
 	return client.NewSentinelClient(&client.Options{
 		Addr:     net.JoinHostPort(ip, strconv.Itoa(SentinelPort)),
 		Username: SuperUser,
-		Password: password,
-	})
-}
-
-func kvrocksClusterClient(ip, password string) *client.ClusterClient {
-	return client.NewClusterClient(&client.ClusterOptions{
-		Addrs:    []string{net.JoinHostPort(ip, strconv.Itoa(KVRocksPort))},
 		Password: password,
 	})
 }

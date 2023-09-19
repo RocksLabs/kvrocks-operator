@@ -35,7 +35,7 @@ func (h *KVRocksClusterHandler) ensureKubernetes() error {
 	h.password = oldCM.Data["password"]
 	for i := 0; i < int(h.instance.Spec.Master); i++ {
 		sts := resources.NewClusterStatefulSet(h.instance, i)
-		if err = h.k8s.CreateIfNotExistsStatefulSet(sts); err != nil {
+		if err = h.k8s.CreateStatefulSetOrUpdateImage(sts); err != nil {
 			return err
 		}
 	}
@@ -131,16 +131,8 @@ func (h *KVRocksClusterHandler) ensureKubernetes() error {
 			if topo.Migrate != nil {
 				for _, migrate := range topo.Migrate {
 					h.stsNodes[i][j].Migrate = append(h.stsNodes[i][j].Migrate, kvrocks.MigrateMsg{
-						DstNodeID: migrate.DstNode,
-						Slots:     kvrocks.SlotsToInt(migrate.Slots),
-					})
-				}
-			}
-			if topo.Import != nil {
-				for _, im := range topo.Import {
-					h.stsNodes[i][j].Import = append(h.stsNodes[i][j].Import, kvrocks.ImportMsg{
-						SrcNodeId: im.SrcNode,
-						Slots:     kvrocks.SlotsToInt(im.Slots),
+						Shard: migrate.Shard,
+						Slots: kvrocks.SlotsToInt(migrate.Slots),
 					})
 				}
 			}
@@ -175,16 +167,8 @@ func (h *KVRocksClusterHandler) ensureStatusTopoMsg() error {
 			if node.Migrate != nil {
 				for _, migrate := range node.Migrate {
 					topo.Migrate = append(topo.Migrate, kvrocksv1alpha1.MigrateMsg{
-						DstNode: migrate.DstNodeID,
-						Slots:   kvrocks.SlotsToString(migrate.Slots),
-					})
-				}
-			}
-			if node.Import != nil {
-				for _, im := range node.Import {
-					topo.Import = append(topo.Import, kvrocksv1alpha1.ImportMsg{
-						SrcNode: im.SrcNodeId,
-						Slots:   kvrocks.SlotsToString(im.Slots),
+						Shard: migrate.Shard,
+						Slots: kvrocks.SlotsToString(migrate.Slots),
 					})
 				}
 			}
@@ -192,6 +176,7 @@ func (h *KVRocksClusterHandler) ensureStatusTopoMsg() error {
 		}
 		h.instance.Status.Topo = append(h.instance.Status.Topo, kvrocksv1alpha1.KVRocksTopoPartitions{
 			PartitionName: partitionName,
+			Shard:         i,
 			Topology:      topoes,
 		})
 	}

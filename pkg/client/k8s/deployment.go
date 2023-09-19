@@ -32,6 +32,18 @@ func (c *Client) UpdateDeployment(deployment *appsv1.Deployment) error {
 	return nil
 }
 
+func (c *Client) DeleteDeployment(key types.NamespacedName) error {
+	deployment, err := c.GetDeployment(key)
+	if err != nil {
+		return err
+	}
+	if err := c.client.Delete(ctx, deployment); err != nil {
+		return err
+	}
+	c.logger.V(1).Info("delete deployment successfully", "deployment", deployment.Name)
+	return nil
+}
+
 func (c *Client) ListDeploymentPods(key types.NamespacedName) (*corev1.PodList, error) {
 	deployment, err := c.GetDeployment(key)
 	if err != nil {

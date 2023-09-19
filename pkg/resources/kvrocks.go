@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	uuid "github.com/google/uuid"
+	uuid "github.com/satori/go.uuid"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/rand"
 
@@ -92,7 +92,7 @@ var key = []byte{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 
 func SetClusterNodeId() string {
 	rand.Seed(time.Now().Unix())
-	uid := uuid.New().String()
+	uid := uuid.NewV4().String()
 	for i := 1; i <= 4; i++ {
 		v1 := key[rand.Intn(len(key))]
 		v2 := key[rand.Intn(len(key))]

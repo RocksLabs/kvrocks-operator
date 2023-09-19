@@ -866,6 +866,8 @@ spec:
                         type: array
                     type: object
                 type: object
+              enableSentinel:
+                type: boolean
               image:
                 type: string
               imagePullPolicy:
@@ -895,8 +897,7 @@ spec:
                     description: "Claims lists the names of resources, defined in
                       spec.resourceClaims, that are used by this container. \n This
                       is an alpha field and requires enabling the DynamicResourceAllocation
-                      feature gate. \n This field is immutable. It can only be set
-                      for containers."
+                      feature gate. \n This field is immutable."
                     items:
                       description: ResourceClaim references one entry in PodSpec.ResourceClaims.
                       properties:
@@ -1024,25 +1025,13 @@ spec:
                   properties:
                     partitionName:
                       type: string
+                    shard:
+                      type: integer
                     topology:
                       items:
                         properties:
                           failover:
                             type: boolean
-                          import:
-                            items:
-                              properties:
-                                slots:
-                                  items:
-                                    type: string
-                                  type: array
-                                srcNode:
-                                  type: string
-                              required:
-                              - slots
-                              - srcNode
-                              type: object
-                            type: array
                           ip:
                             type: string
                           masterId:
@@ -1050,14 +1039,14 @@ spec:
                           migrate:
                             items:
                               properties:
-                                dstNode:
-                                  type: string
+                                shard:
+                                  type: integer
                                 slots:
                                   items:
                                     type: string
                                   type: array
                               required:
-                              - dstNode
+                              - shard
                               - slots
                               type: object
                             type: array
@@ -1084,6 +1073,7 @@ spec:
                       type: array
                   required:
                   - partitionName
+                  - shard
                   - topology
                   type: object
                 type: array

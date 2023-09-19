@@ -4,63 +4,6 @@ import (
 	"strings"
 )
 
-const (
-	ClusterNotInitErr     = "CLUSTERDOWN The cluster is not initialized"
-	ClusterAlreadyMigrate = "Can't migrate slot which has been migrated"
-	ClusterSlotInvalid    = "Can't migrate slot which doesn't belong to me"
-	ClusterVersionInvalid = "Invalid cluster version"
-	ClusterInvalidVersion = "Invalid version of cluster"
-)
-
-func (s *Client) SetClusterID(ip, password, nodeID string) error {
-	c := kvrocksClient(ip, password)
-	defer c.Close()
-	if err := c.Do(ctx, "CLUSTERX", "SETNODEID", nodeID).Err(); err != nil {
-		return err
-	}
-	s.logger.V(1).Info("set cluster nodeID successfully", "ip", ip, "nodeId", nodeID)
-	return nil
-}
-
-func (s *Client) SetTopoMsg(ip, password, topoMsg string, version int) error {
-	c := kvrocksClient(ip, password)
-	defer c.Close()
-	if err := c.Do(ctx, "CLUSTERX", "SETNODES", topoMsg, version).Err(); err != nil {
-		return err
-	}
-	s.logger.V(1).Info("clusterx setnodes successfully", "ip", ip)
-	return nil
-}
-
-func (s *Client) MoveSlots(ip, password string, slot int, dstNodeId string) bool {
-	c := kvrocksClient(ip, password)
-	defer c.Close()
-	if err := c.Do(ctx, "CLUSTERX", "MIGRATE", slot, dstNodeId).Err(); err != nil && (err.Error() == ClusterAlreadyMigrate || err.Error() == ClusterSlotInvalid) {
-		return true
-	}
-	return false
-}
-
-func (s *Client) ResetSlot(ip, password string, slot, version int, dstNodeId string) error {
-	c := kvrocksClient(ip, password)
-	defer c.Close()
-	if err := c.Do(ctx, "CLUSTERX", "SETSLOT", slot, "NODE", dstNodeId, version).Err(); err != nil {
-		return err
-	}
-	s.logger.V(1).Info("clusterx setslot successfully", "ip", ip, "node", dstNodeId, "slot", slot, "version", version)
-	return nil
-}
-
-func (s *Client) ClusterVersion(ip, password string) (int, error) {
-	c := kvrocksClient(ip, password)
-	defer c.Close()
-	result, err := c.Do(ctx, "CLUSTERX", "VERSION").Int()
-	if err != nil {
-		return -1, err
-	}
-	return result, nil
-}
-
 func (s *Client) ClusterNodeInfo(ip, password string) (*Node, error) {
 	c := kvrocksClient(ip, password)
 	defer c.Close()

@@ -1,6 +1,6 @@
 kruiseVersion: 1.4.0
 clusterName: e2e-test
-namespace: kvrocks
+namespace: default
 manifestDir:
-chaosMeshEnabled: true
-kubeConfig:
+chaosMeshEnabled: false
+kubeConfig: /root/.kube/config

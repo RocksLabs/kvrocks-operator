@@ -2,6 +2,7 @@ package k8s
 
 import (
 	kruise "github.com/openkruise/kruise-api/apps/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -98,4 +99,32 @@ func (c *Client) DeleteStatefulSetIfExists(key types.NamespacedName) error {
 		return nil
 	}
 	return c.client.Delete(ctx, sts)
+}
+
+// Native StatefulSet
+func (c *Client) CreateIfNotExistsNativeStatefulSet(sts *appsv1.StatefulSet) error {
+	if err := c.client.Create(ctx, sts); err != nil && !errors.IsAlreadyExists(err) {
+		return err
+	}
+	c.logger.V(1).Info("create statefulSet successfully", "statefulSet", sts.Name)
+	return nil
+}
+
+func (c *Client) GetNativeStatefulSet(key types.NamespacedName) (*appsv1.StatefulSet, error) {
+	var sts appsv1.StatefulSet
+	if err := c.client.Get(ctx, key, &sts); err != nil {
+		return nil, err
+	}
+	return &sts, nil
+}
+
+func (c *Client) DeleteNativeStatefulSet(key types.NamespacedName) error {
+	sts, err := c.GetNativeStatefulSet(key)
+	if err != nil {
+		return err
+	}
+	if err := c.client.Delete(ctx, sts); err != nil {
+		return err
+	}
+	return nil
 }

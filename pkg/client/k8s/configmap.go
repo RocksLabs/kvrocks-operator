@@ -45,3 +45,15 @@ func (c *Client) CreateIfNotExistsConfigMap(cm *corev1.ConfigMap) error {
 	c.logger.V(1).Info("configMap create successfully", "configMap", cm.Name)
 	return nil
 }
+
+func (c *Client) DeleteConfigMap(key types.NamespacedName) error {
+	cm, err := c.GetConfigMap(key)
+	if err != nil {
+		return err
+	}
+	if err := c.client.Delete(ctx, cm); err != nil {
+		return err
+	}
+	c.logger.V(1).Info("configMap delete successfully", "configMap", cm.Name)
+	return nil
+}
