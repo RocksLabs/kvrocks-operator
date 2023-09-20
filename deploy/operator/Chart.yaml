@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: v2
 name: kvrocks-operator
 description: A Helm chart for kvrocks operator
 type: application
