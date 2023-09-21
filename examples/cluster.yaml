@@ -2,16 +2,15 @@ apiVersion: kvrocks.apache.org/v1alpha1
 kind: KVRocks
 metadata:
   name: kvrocks-cluster-1-demo
-  namespace: kvrocks
+  namespace: default
   labels:
-    kvrocks/system: xx
+    kvrocks/monitored-by: sentinel-1
 spec:
   image: apache/kvrocks:nightly # kvrocks image
   imagePullPolicy: IfNotPresent
   master: 3
-  replicas: 3
+  replicas: 2
   type: cluster
-  enableSentinel: true
   password: "123456"
   kvrocksConfig:
     bind: "0.0.0.0"
@@ -40,9 +39,9 @@ spec:
     rocksdb.compression: "no"
     rocksdb.wal_ttl_seconds: "0"
     rocksdb.wal_size_limit_mb: "0"
-#  storage:
-#    size: 32Gi
-#    class: xxxxx # storage class
+  storage:
+    size: 200Mi
+    class: standard # storage class
 #  nodeSelector:
 #    role: kvrocks
   toleration:
@@ -57,5 +56,5 @@ spec:
       cpu: 2
       memory: 8Gi
     requests:
-      cpu: 1
-      memory: 4Gi
+      cpu: 200m
+      memory: 200Mi
