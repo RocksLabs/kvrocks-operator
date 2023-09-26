@@ -1,6 +1,8 @@
 package k8s
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	kubeerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -8,9 +10,8 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-	"testing"
 )
 
 func TestGetPod(t *testing.T) {
@@ -45,7 +46,7 @@ func TestGetPod(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			var objs []client.Object
+			var objs []k8sApiClient.Object
 			if test.existingPod != nil {
 				objs = append(objs, test.existingPod)
 			}
@@ -110,7 +111,7 @@ func TestUpdatePod(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			var objs []client.Object
+			var objs []k8sApiClient.Object
 			if test.existingPod != nil {
 				objs = append(objs, test.existingPod)
 			}
@@ -166,7 +167,7 @@ func TestDeletePodImmediately(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			var objs []client.Object
+			var objs []k8sApiClient.Object
 			if test.existingPod != nil {
 				objs = append(objs, test.existingPod)
 			}

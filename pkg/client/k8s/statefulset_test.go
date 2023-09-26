@@ -2,6 +2,8 @@ package k8s
 
 import (
 	"context"
+	"testing"
+
 	kruise "github.com/openkruise/kruise-api/apps/v1beta1"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
@@ -10,9 +12,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-	"testing"
 )
 
 func TestCreateIfNotExistsStatefulSet(t *testing.T) {
@@ -47,7 +48,7 @@ func TestCreateIfNotExistsStatefulSet(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			if test.existingSTS != nil {
 				objs = append(objs, test.existingSTS)
 			}
@@ -105,7 +106,7 @@ func TestGetStatefulSet(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			if test.existingSTS != nil {
 				objs = append(objs, test.existingSTS)
 			}
@@ -164,7 +165,7 @@ func TestUpdateStatefulSet(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			if test.exitingSTS != nil {
 				objs = append(objs, test.exitingSTS)
 			}
@@ -251,7 +252,7 @@ func TestListStatefulSetPods(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			objs = append(objs, test.sts)
 			if test.pod != nil {
 				objs = append(objs, test.pod)
@@ -313,7 +314,7 @@ func TestCreateOrUpdateStatefulSet(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			if test.exitingSTS != nil {
 				objs = append(objs, test.exitingSTS)
 			}
@@ -382,7 +383,7 @@ func TestListStatefulSets(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			if test.existingSTS != nil {
 				objs = append(objs, test.existingSTS)
 			}
@@ -434,7 +435,7 @@ func TestDeleteStatefulSetIfExists(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			if test.existingSTS != nil {
 				objs = append(objs, test.existingSTS)
 			}

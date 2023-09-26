@@ -6,7 +6,8 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-func (s *Client) GetMasterFromSentinel(sentinelIP, sentinelPassword, master string) (string, error) {
+// GetMasterFromSentinel returns the master ip from sentinel
+func (s *client) GetMasterFromSentinel(sentinelIP, sentinelPassword, master string) (string, error) {
 	c := kvrocksSentinelClient(sentinelIP, sentinelPassword)
 	defer c.Close()
 	res, err := c.Master(ctx, master).Result()
@@ -18,7 +19,8 @@ func (s *Client) GetMasterFromSentinel(sentinelIP, sentinelPassword, master stri
 	return masterIP, nil
 }
 
-func (s *Client) RemoveMonitor(sentinelIP, password, master string) error {
+// RemoveMonitor removes the monitor from sentinel
+func (s *client) RemoveMonitor(sentinelIP, password, master string) error {
 	c := kvrocksSentinelClient(sentinelIP, password)
 	defer c.Close()
 	if err := c.Remove(ctx, master).Err(); err != nil {
@@ -28,7 +30,8 @@ func (s *Client) RemoveMonitor(sentinelIP, password, master string) error {
 	return nil
 }
 
-func (s *Client) CreateMonitor(sentinelIP, password, master, ip, kvPass string) error {
+// CreateMonitor creates the monitor in sentinel
+func (s *client) CreateMonitor(sentinelIP, password, master, ip, kvPass string) error {
 	c := kvrocksSentinelClient(sentinelIP, password)
 	defer c.Close()
 	var err error
@@ -48,7 +51,8 @@ func (s *Client) CreateMonitor(sentinelIP, password, master, ip, kvPass string) 
 	return nil
 }
 
-func (s *Client) ResetMonitor(sentinelIP, sentinelPassword, master, password string) error {
+// ResetMonitor resets the monitor in sentinel
+func (s *client) ResetMonitor(sentinelIP, sentinelPassword, master, password string) error {
 	c := kvrocksSentinelClient(sentinelIP, sentinelPassword)
 	defer c.Close()
 	var err error
@@ -62,7 +66,8 @@ func (s *Client) ResetMonitor(sentinelIP, sentinelPassword, master, password str
 	return nil
 }
 
-func (s *Client) SubOdownMsg(ip, password string) (*redis.PubSub, func()) {
+// SubOdownMsg subscribes the odown message from sentinel
+func (s *client) SubOdownMsg(ip, password string) (*redis.PubSub, func()) {
 	c := kvrocksSentinelClient(ip, password)
 	pubsub := c.Subscribe(ctx, "+odown")
 	finalize := func() {
@@ -71,5 +76,4 @@ func (s *Client) SubOdownMsg(ip, password string) (*redis.PubSub, func()) {
 	}
 
 	return pubsub, finalize
-
 }

@@ -19,13 +19,13 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type KubernetesEnv struct {
 	config               *Config
 	kubernetesConfig     *rest.Config
-	Client               client.Client
+	Client               k8sApiClient.Client
 	ChaosMeshExperiments []Experiment
 	Clean                func() error
 }
@@ -53,13 +53,13 @@ func Start(config *Config) *KubernetesEnv {
 	// scheme
 	env.registerScheme()
 
-	//config
+	// config
 	checkClusterName(env.config.KubeConfig, env.config.ClusterName)
 	cfg, err := loadKubernetesConfig(env.config.KubeConfig)
 	Expect(err).NotTo(HaveOccurred())
 	env.kubernetesConfig = cfg
 
-	env.Client, err = client.New(env.kubernetesConfig, client.Options{Scheme: scheme.Scheme})
+	env.Client, err = k8sApiClient.New(env.kubernetesConfig, k8sApiClient.Options{Scheme: scheme.Scheme})
 	Expect(err).NotTo(HaveOccurred())
 
 	env.installKruise()

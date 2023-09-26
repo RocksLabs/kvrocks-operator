@@ -12,7 +12,8 @@ const (
 	ClusterInvalidVersion = "Invalid version of cluster"
 )
 
-func (s *Client) SetClusterID(ip, password, nodeID string) error {
+// SetClusterID sets the cluster nodeID
+func (s *client) SetClusterID(ip, password, nodeID string) error {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	if err := c.Do(ctx, "CLUSTERX", "SETNODEID", nodeID).Err(); err != nil {
@@ -22,7 +23,8 @@ func (s *Client) SetClusterID(ip, password, nodeID string) error {
 	return nil
 }
 
-func (s *Client) SetTopoMsg(ip, password, topoMsg string, version int) error {
+// SetTopoMsg sets the cluster topoMsg
+func (s *client) SetTopoMsg(ip, password, topoMsg string, version int) error {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	if err := c.Do(ctx, "CLUSTERX", "SETNODES", topoMsg, version).Err(); err != nil {
@@ -32,7 +34,8 @@ func (s *Client) SetTopoMsg(ip, password, topoMsg string, version int) error {
 	return nil
 }
 
-func (s *Client) MoveSlots(ip, password string, slot int, dstNodeId string) bool {
+// MoveSlots moves the slots to the dstNodeId
+func (s *client) MoveSlots(ip, password string, slot int, dstNodeId string) bool {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	if err := c.Do(ctx, "CLUSTERX", "MIGRATE", slot, dstNodeId).Err(); err != nil && (err.Error() == ClusterAlreadyMigrate || err.Error() == ClusterSlotInvalid) {
@@ -41,7 +44,8 @@ func (s *Client) MoveSlots(ip, password string, slot int, dstNodeId string) bool
 	return false
 }
 
-func (s *Client) ResetSlot(ip, password string, slot, version int, dstNodeId string) error {
+// ResetSlot resets the slot to the dstNodeId
+func (s *client) ResetSlot(ip, password string, slot, version int, dstNodeId string) error {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	if err := c.Do(ctx, "CLUSTERX", "SETSLOT", slot, "NODE", dstNodeId, version).Err(); err != nil {
@@ -51,7 +55,8 @@ func (s *Client) ResetSlot(ip, password string, slot, version int, dstNodeId str
 	return nil
 }
 
-func (s *Client) ClusterVersion(ip, password string) (int, error) {
+// ClusterVersion returns the cluster version
+func (s *client) ClusterVersion(ip, password string) (int, error) {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	result, err := c.Do(ctx, "CLUSTERX", "VERSION").Int()
@@ -61,7 +66,8 @@ func (s *Client) ClusterVersion(ip, password string) (int, error) {
 	return result, nil
 }
 
-func (s *Client) ClusterNodeInfo(ip, password string) (*Node, error) {
+// ClusterNodeInfo returns the cluster node info
+func (s *client) ClusterNodeInfo(ip, password string) (*Node, error) {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	info, err := c.ClusterNodes(ctx).Result()

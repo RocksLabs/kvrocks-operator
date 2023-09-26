@@ -14,7 +14,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
 
-var c *Client
+var c Client
 
 var sentinels = []string{"10.0.77.34", "10.0.76.245", "10.0.78.80"}
 
@@ -22,8 +22,8 @@ func init() {
 	opts := zap.Options{
 		Development: true,
 	}
-	//opts.BindFlags(flag.CommandLine)
-	//flag.Parse()
+	// opts.BindFlags(flag.CommandLine)
+	// flag.Parse()
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 	c = NewKVRocksClient(ctrl.Log)
 }
@@ -65,10 +65,10 @@ func TestSetClusterID(t *testing.T) {
 	masterIp := "10.0.77.90"
 	slaveIp := "10.0.77.100"
 	if err := c.SetClusterID(masterIp, "39c5bb", "f7149f2apw3d8ftm4a01w59b35v75b46e8555ae4"); err != nil {
-		c.logger.Error(err, "set nodeID error")
+		c.Logger().Error(err, "set nodeID error")
 	}
 	if err := c.SetClusterID(slaveIp, "39c5bb", "2beb1a909fa2a8w54588i2bd51lo5936dfdd8ae8"); err != nil {
-		c.logger.Error(err, "set nodeID error")
+		c.Logger().Error(err, "set nodeID error")
 	}
 }
 
@@ -120,9 +120,11 @@ func Test_crc16(t *testing.T) {
 	fmt.Println("ok")
 }
 
-var key = []byte{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+var key = []byte{
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-	'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}
+	'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+}
 
 func SetClusterNodeId() string {
 	rand.Seed(time.Now().Unix())
@@ -152,7 +154,6 @@ func Test_DBSize(t *testing.T) {
 		fmt.Println(result)
 	}
 	fmt.Println("sum: ", sum)
-
 }
 
 func Test_DeepEqual(t *testing.T) {

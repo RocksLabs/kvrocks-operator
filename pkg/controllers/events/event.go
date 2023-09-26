@@ -43,11 +43,11 @@ type event struct {
 	messages          *messageQueue
 	producerSentinels map[string]func(msg *produceMessage)
 	k8s               *k8s.Client
-	kvrocks           *kvrocks.Client
+	kvrocks           kvrocks.Client
 	log               logr.Logger
 }
 
-func NewEvent(k8s *k8s.Client, kvrocks *kvrocks.Client, log logr.Logger) *event {
+func NewEvent(k8s *k8s.Client, kvrocks kvrocks.Client, log logr.Logger) *event {
 	return &event{
 		k8s:               k8s,
 		kvrocks:           kvrocks,

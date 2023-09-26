@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/go-logr/logr"
-	client "github.com/go-redis/redis/v8"
+	redisClient "github.com/go-redis/redis/v8"
 )
 
 var ctx = context.TODO()
@@ -49,31 +49,60 @@ type MigrateMsg struct {
 	Slots     []int
 }
 
-type Client struct {
+type client struct {
 	logger logr.Logger
 }
 
-func NewKVRocksClient(logger logr.Logger) *Client {
-	return &Client{logger: logger}
+func (s *client) Logger() logr.Logger {
+	return s.logger
 }
 
-func kvrocksClient(ip, password string) *client.Client {
-	return client.NewClient(&client.Options{
+type Client interface {
+	Logger() logr.Logger
+
+	ChangeMyselfToMaster(ip string, password string) error
+	ChangePassword(ip string, password string, newPassword string) error
+	ClusterNodeInfo(ip string, password string) (*Node, error)
+	ClusterVersion(ip string, password string) (int, error)
+	CreateMonitor(sentinelIP string, password string, master string, ip string, kvPass string) error
+	GetConfig(ip string, password string, key string) (*string, error)
+	GetMaster(ip string, password string) (string, error)
+	GetMasterFromSentinel(sentinelIP string, sentinelPassword string, master string) (string, error)
+	GetOffset(ip string, password string) (int, error)
+	MoveSlots(ip string, password string, slot int, dstNodeId string) bool
+	NodeInfo(ip string, password string) (node Node, err error)
+	Ping(ip string, password string) bool
+	RemoveMonitor(sentinelIP string, password string, master string) error
+	ResetMonitor(sentinelIP string, sentinelPassword string, master string, password string) error
+	ResetSlot(ip string, password string, slot int, version int, dstNodeId string) error
+	SetClusterID(ip string, password string, nodeID string) error
+	SetConfig(ip string, password string, key string, value string) error
+	SetTopoMsg(ip string, password string, topoMsg string, version int) error
+	SlaveOf(slaveIP string, masterIP string, password string) error
+	SubOdownMsg(ip string, password string) (*redisClient.PubSub, func())
+}
+
+func NewKVRocksClient(logger logr.Logger) Client {
+	return &client{logger: logger}
+}
+
+func kvrocksClient(ip, password string) *redisClient.Client {
+	return redisClient.NewClient(&redisClient.Options{
 		Addr:     net.JoinHostPort(ip, strconv.Itoa(KVRocksPort)),
 		Password: password,
 	})
 }
 
-func kvrocksSentinelClient(ip, password string) *client.SentinelClient {
-	return client.NewSentinelClient(&client.Options{
+func kvrocksSentinelClient(ip, password string) *redisClient.SentinelClient {
+	return redisClient.NewSentinelClient(&redisClient.Options{
 		Addr:     net.JoinHostPort(ip, strconv.Itoa(SentinelPort)),
 		Username: SuperUser,
 		Password: password,
 	})
 }
 
-func kvrocksClusterClient(ip, password string) *client.ClusterClient {
-	return client.NewClusterClient(&client.ClusterOptions{
+func kvrocksClusterClient(ip, password string) *redisClient.ClusterClient {
+	return redisClient.NewClusterClient(&redisClient.ClusterOptions{
 		Addrs:    []string{net.JoinHostPort(ip, strconv.Itoa(KVRocksPort))},
 		Password: password,
 	})

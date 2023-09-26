@@ -5,7 +5,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func (c *Client) CreateIfNotExistsDeployment(deployment *appsv1.Deployment) error {
@@ -42,7 +42,7 @@ func (c *Client) ListDeploymentPods(key types.NamespacedName) (*corev1.PodList, 
 		labels[k] = v
 	}
 	var pods corev1.PodList
-	if err := c.client.List(ctx, &pods, client.InNamespace(deployment.Namespace), client.MatchingLabels(labels)); err != nil {
+	if err := c.client.List(ctx, &pods, k8sApiClient.InNamespace(deployment.Namespace), k8sApiClient.MatchingLabels(labels)); err != nil {
 		return nil, err
 	}
 	return &pods, nil

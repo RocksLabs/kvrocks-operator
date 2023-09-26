@@ -12,7 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
@@ -48,7 +48,7 @@ func TestCreateIfNotExistsDeployment(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			if test.existingDeploy != nil {
 				objs = append(objs, test.existingDeploy)
 			}
@@ -105,7 +105,7 @@ func TestGetDeployment(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			if test.existingDeploy != nil {
 				objs = append(objs, test.existingDeploy)
 			}
@@ -164,7 +164,7 @@ func TestUpdateDeployment(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			if test.existingDeploy != nil {
 				objs = append(objs, test.existingDeploy)
 			}
@@ -198,6 +198,7 @@ func TestUpdateDeployment(t *testing.T) {
 		})
 	}
 }
+
 func TestListDeploymentPods(t *testing.T) {
 	ns := "unit-test"
 	testDeployment := &appsv1.Deployment{
@@ -246,7 +247,7 @@ func TestListDeploymentPods(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			objs = append(objs, test.dep)
 			if test.pod != nil {
 				objs = append(objs, test.pod)

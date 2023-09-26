@@ -5,7 +5,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func (c *Client) CreateIfNotExistsStatefulSet(sts *kruise.StatefulSet) error {
@@ -42,7 +42,7 @@ func (c *Client) ListStatefulSetPods(key types.NamespacedName) (*corev1.PodList,
 		labels[k] = v
 	}
 	var pods corev1.PodList
-	if err := c.client.List(ctx, &pods, client.InNamespace(sts.Namespace), client.MatchingLabels(labels)); err != nil {
+	if err := c.client.List(ctx, &pods, k8sApiClient.InNamespace(sts.Namespace), k8sApiClient.MatchingLabels(labels)); err != nil {
 		return nil, err
 	}
 	return &pods, nil
@@ -83,7 +83,7 @@ func (c *Client) CreateStatefulSetOrUpdateImage(sts *kruise.StatefulSet) error {
 
 func (c *Client) ListStatefulSets(namespace string, labels map[string]string) (*kruise.StatefulSetList, error) {
 	var stsList kruise.StatefulSetList
-	if err := c.client.List(ctx, &stsList, client.InNamespace(namespace), client.MatchingLabels(labels)); err != nil {
+	if err := c.client.List(ctx, &stsList, k8sApiClient.InNamespace(namespace), k8sApiClient.MatchingLabels(labels)); err != nil {
 		return nil, err
 	}
 	return &stsList, nil

@@ -14,7 +14,7 @@ import (
 type KVRocksClusterHandler struct {
 	instance *kvrocksv1alpha1.KVRocks
 	k8s      *k8s.Client
-	kvrocks  *kvrocks.Client
+	kvrocks  kvrocks.Client
 	log      logr.Logger
 	password string
 	requeue  bool
@@ -26,10 +26,11 @@ type KVRocksClusterHandler struct {
 
 func NewKVRocksClusterHandler(
 	k8s *k8s.Client,
-	kvrocks *kvrocks.Client,
+	kvrocks kvrocks.Client,
 	log logr.Logger,
 	key types.NamespacedName,
-	instance *kvrocksv1alpha1.KVRocks) *KVRocksClusterHandler {
+	instance *kvrocksv1alpha1.KVRocks,
+) *KVRocksClusterHandler {
 	return &KVRocksClusterHandler{
 		instance: instance,
 		k8s:      k8s,
