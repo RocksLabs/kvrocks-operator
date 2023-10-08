@@ -1,11 +1,32 @@
 apiVersion: v1
 entries:
+  kvrocks-crd:
+  - apiVersion: v2
+    appVersion: 3.25.0
+    created: "2023-10-08T14:48:30.527417171Z"
+    description: A Helm chart for kvrocks crd
+    digest: 1b69802c8d86988872a80fd85ebb39f120fdb87648f4a5fb65e9d2f3a2806dc3
+    name: kvrocks-crd
+    type: application
+    urls:
+    - https://github.com/jiayouxujin/kvrocks-operator/releases/download/kvrocks-crd-0.1.0/kvrocks-crd-0.1.0.tgz
+    version: 0.1.0
   kvrocks-operator:
   - apiVersion: v2
     appVersion: 2.25.0
     created: "2023-09-21T13:20:18.044970462Z"
     description: A Helm chart for kvrocks operator
     digest: 0deb5920374a63a127df05f8213efe446d64f5c007db159bc8c9f9fe0d23ab24
+    name: kvrocks-operator
+    type: application
+    urls:
+    - https://github.com/jiayouxujin/kvrocks-operator/releases/download/kvrocks-operator-1.0.0-unstable/kvrocks-operator-1.0.0-unstable.tgz
+    version: 1.0.0-unstable
+  - apiVersion: v2
+    appVersion: 2.25.0
+    created: "2023-10-08T14:48:30.703092405Z"
+    description: A Helm chart for kvrocks operator
+    digest: 9a5f57d5a30cd8bfc6e661cc7feda95ec21ae23ce0f3d22e1282e98e6354f3b4
     name: kvrocks-operator
     type: application
     urls:
@@ -32,4 +53,4 @@ entries:
     urls:
     - https://github.com/jiayouxujin/kvrocks-operator/releases/download/kvrocks-operator-test-0.1.1/kvrocks-operator-test-0.1.1.tgz
     version: 0.1.1
-generated: "2023-09-21T13:20:18.044978363Z"
+generated: "2023-10-08T14:48:30.703105005Z"
