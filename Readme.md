@@ -20,9 +20,9 @@ kubectl create ns kvrocks
 
 3. Use helm to install and manage the crd/operator 
 ```
-git clone https://github.com/RocksLabs/kvrocks-operator.git
-helm install kvrocks-crd deploy/crd -n kvrocks
-helm install kvrocks-operator deploy/operator -n kvrocks
+helm repo add kvrocks-operator https://rockslabs.github.io/kvrocks-operator
+helm install kvrocks-crd kvrocks-operator/kvrocks-crd -n kvrocks
+helm install kvrocks-operator kvrocks-operator/kvrocks-operator -n kvrocks
 ```
 
 4. Modify the `examples/standard.yaml examples/sentinel.yaml` and then apply
