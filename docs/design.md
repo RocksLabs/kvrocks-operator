@@ -2,7 +2,7 @@
 
 ## Sentinel
 
-![avatar](/docs/images/sentinel.png)
+<img alt="avatar" src="/docs/images/sentinel.png" width="50%"/>
 
 1. Use deployment to deploy sentinel Pod
 2. For scaling, just modify the spec.replicas field
@@ -27,7 +27,8 @@
 
 ## Standard
 
-![avatar](/docs/images/standard.png)
+<img src="/docs/images/standard.png" width="50%" />
+
 
 1. Use statefulSet to deploy kvrocks pod
 2. Sentinel is used to monitor kvrocks master-slave mode, and perform failover and discovery
