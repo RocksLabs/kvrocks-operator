@@ -7,7 +7,6 @@ import (
 )
 
 // etcd-> controller
-// TODO owner reference
 func (h *KVRocksClusterHandler) ensureController() error {
 	etcdService := resources.NewEtcdService(h.instance)
 	if err := h.k8s.CreateIfNotExistsService(etcdService); err != nil {

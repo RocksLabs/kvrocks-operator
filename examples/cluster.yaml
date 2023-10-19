@@ -6,7 +6,7 @@ metadata:
   labels:
     kvrocks/monitored-by: sentinel-1
 spec:
-  image: apache/kvrocks:nightly # kvrocks image
+  image: apache/kvrocks:2.5.1 # kvrocks image
   imagePullPolicy: IfNotPresent
   master: 3
   replicas: 2

@@ -13,17 +13,16 @@ import (
 )
 
 type KVRocksClusterHandler struct {
-	instance *kvrocksv1alpha1.KVRocks
-	k8s      *k8s.Client
-	kvrocks  *kvrocks.Client
-	log      logr.Logger
-	password string
-	requeue  bool
-	stsNodes [][]*kvrocks.Node
-	key      types.NamespacedName
-	version  int
-	masters  map[string]*kvrocks.Node
-
+	instance         *kvrocksv1alpha1.KVRocks
+	k8s              *k8s.Client
+	kvrocks          *kvrocks.Client
+	log              logr.Logger
+	password         string
+	requeue          bool
+	stsNodes         [][]*kvrocks.Node
+	key              types.NamespacedName
+	version          int
+	masters          map[string]*kvrocks.Node
 	controllerClient *controller.Client
 }
 
@@ -69,7 +68,7 @@ func (h *KVRocksClusterHandler) Handle() (error, bool) {
 	if err != nil || h.requeue {
 		return err, false
 	}
-	err = h.reBalance()
+	err = h.ensureMigrate()
 	if err != nil || h.requeue {
 		return err, false
 	}

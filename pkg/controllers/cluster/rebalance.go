@@ -7,7 +7,7 @@ import (
 	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
 )
 
-func (h *KVRocksClusterHandler) reBalance() error {
+func (h *KVRocksClusterHandler) ensureMigrate() error {
 	masters := make([]*kvrocks.Node, 0)
 	h.masters = map[string]*kvrocks.Node{}
 	for _, nodes := range h.stsNodes {
@@ -24,7 +24,7 @@ func (h *KVRocksClusterHandler) reBalance() error {
 			return h.ensureReBalanceTopo(index, master)
 		}
 	}
-	h.log.Info("reBalance successfully")
+	h.log.Info("migrate successfully")
 	return h.ensureStatusTopoMsg()
 }
 
@@ -36,7 +36,6 @@ func (h *KVRocksClusterHandler) ensureReBalanceTopo(src int, node *kvrocks.Node)
 			retry := 0
 			wait := time.Millisecond * 10
 		moveSlots:
-			// TODO controller 500 "there is a migration task running"
 			err := h.controllerClient.MigrateSlotAndData(src, dest, slot)
 			if err != nil {
 				h.log.Error(err, "move slot error")
