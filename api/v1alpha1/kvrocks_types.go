@@ -83,6 +83,7 @@ type KVRocksShrinkMsg struct {
 
 type KVRocksTopoPartitions struct {
 	PartitionName string            `json:"partitionName"`
+	Shard         int               `json:"shard"`
 	Topology      []KVRocksTopology `json:"topology"`
 }
 
@@ -95,18 +96,12 @@ type KVRocksTopology struct {
 	Slots    []string     `json:"slots,omitempty"`
 	MasterId string       `json:"masterId,omitempty"`
 	Migrate  []MigrateMsg `json:"migrate,omitempty"`
-	Import   []ImportMsg  `json:"import,omitempty"`
 	Failover bool         `json:"failover,omitempty"`
 }
 
-type ImportMsg struct {
-	SrcNode string   `json:"srcNode"`
-	Slots   []string `json:"slots"`
-}
-
 type MigrateMsg struct {
-	DstNode string   `json:"dstNode"`
-	Slots   []string `json:"slots"`
+	Shard int      `json:"shard"`
+	Slots []string `json:"slots"`
 }
 
 type KVRocksStorage struct {

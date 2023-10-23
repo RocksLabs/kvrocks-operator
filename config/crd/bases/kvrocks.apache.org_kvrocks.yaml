@@ -1024,25 +1024,13 @@ spec:
                   properties:
                     partitionName:
                       type: string
+                    shard:
+                      type: integer
                     topology:
                       items:
                         properties:
                           failover:
                             type: boolean
-                          import:
-                            items:
-                              properties:
-                                slots:
-                                  items:
-                                    type: string
-                                  type: array
-                                srcNode:
-                                  type: string
-                              required:
-                              - slots
-                              - srcNode
-                              type: object
-                            type: array
                           ip:
                             type: string
                           masterId:
@@ -1050,14 +1038,14 @@ spec:
                           migrate:
                             items:
                               properties:
-                                dstNode:
-                                  type: string
+                                shard:
+                                  type: integer
                                 slots:
                                   items:
                                     type: string
                                   type: array
                               required:
-                              - dstNode
+                              - shard
                               - slots
                               type: object
                             type: array
@@ -1084,6 +1072,7 @@ spec:
                       type: array
                   required:
                   - partitionName
+                  - shard
                   - topology
                   type: object
                 type: array

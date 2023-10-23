@@ -1,7 +1,11 @@
 package sentinel
 
 import (
+	"strconv"
+
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/k8s"
 	"github.com/RocksLabs/kvrocks-operator/pkg/resources"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 func (h *KVRocksSentinelHandler) ensureKubernetes() error {
@@ -35,5 +39,34 @@ func (h *KVRocksSentinelHandler) ensureKubernetes() error {
 		h.pods = append(h.pods, pod.Status.PodIP)
 	}
 	h.log.Info("kubernetes resources ok")
+	return nil
+}
+
+func UpdateSentinelAnnotationCount(k8s *k8s.Client, namespace, sentinelName string) error {
+	sentinel, err := k8s.GetKVRocks(types.NamespacedName{
+		Namespace: namespace,
+		Name:      sentinelName,
+	})
+	if err != nil {
+		return err
+	}
+	annotations := sentinel.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
+	count, ok := annotations["change-count"]
+	if !ok {
+		count = "0"
+	}
+	countInt, err := strconv.Atoi(count)
+	if err != nil {
+		return err
+	}
+	countInt++
+	annotations["change-count"] = strconv.Itoa(countInt)
+	sentinel.SetAnnotations(annotations)
+	if err := k8s.UpdateKVRocks(sentinel); err != nil {
+		return err
+	}
 	return nil
 }

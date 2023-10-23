@@ -12,6 +12,8 @@ ginkgo: ## Download ginkgo locally if necessary.
 e2e-test:
 ifeq ($(mode), standard)
 	CONFIG_FILE_PATH=$(PROJECT_DIR)/test/e2e/$(CONFIG_FILE_PATH) $(GINKGO) -v ./standard/
+else ifeq ($(mode), cluster)
+	CONFIG_FILE_PATH=$(PROJECT_DIR)/test/e2e/$(CONFIG_FILE_PATH) $(GINKGO) -v ./cluster/
 else
 	@echo "Invalid mode: $(mode)"
 endif

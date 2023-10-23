@@ -9,6 +9,7 @@ import (
 	"github.com/robfig/cron/v3"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/controller"
 	"github.com/RocksLabs/kvrocks-operator/pkg/client/k8s"
 	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
 )
@@ -43,14 +44,16 @@ type event struct {
 	messages          *messageQueue
 	producerSentinels map[string]func(msg *produceMessage)
 	k8s               *k8s.Client
-	kvrocks           kvrocks.Client
+	kvrocks           *kvrocks.Client
+	controller        *controller.Client
 	log               logr.Logger
 }
 
-func NewEvent(k8s *k8s.Client, kvrocks kvrocks.Client, log logr.Logger) *event {
+func NewEvent(k8s *k8s.Client, kvrocks *kvrocks.Client, controller *controller.Client, log logr.Logger) *event {
 	return &event{
 		k8s:               k8s,
 		kvrocks:           kvrocks,
+		controller:        controller,
 		messages:          message,
 		producerSentinels: map[string]func(msg *produceMessage){},
 		log:               log,

@@ -9,10 +9,17 @@ make ginkgo  # download the ginkgo tool
 
 Then, you can refer to the development guide docs to install the Telepresence tool, which supports connecting to the cluster.
 
-Now, you can use the following command to run the e2e test for standard mode:
+To execute the end-to-end test in standard mode, use the command below:
 ```bash
 make e2e-test mode=standard CONFIG_FILE_PATH=config/config.yaml # run the e2e test for standard mode
 ```
+
+For testing in cluster mode, utilize the following command:
+```bash
+make e2e-test mode=cluster CONFIG_FILE_PATH=config/config.yaml # run the e2e test for cluster mode
+```
+
+
 
 The details of [config.yaml](config/config.yaml) are as follows:
 ```yaml
