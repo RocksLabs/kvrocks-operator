@@ -1,0 +1,25 @@
+apiVersion: v1
+entries:
+  kvrocks-crd:
+  - apiVersion: v2
+    appVersion: 3.25.0
+    created: "2023-10-23T03:08:28.714807013Z"
+    description: A Helm chart for kvrocks crd
+    digest: 75b753690b20942edb5819c0e1e3a0ab3734a7ba0718bc30848b4c344d99ae52
+    name: kvrocks-crd
+    type: application
+    urls:
+    - https://github.com/RocksLabs/kvrocks-operator/releases/download/kvrocks-crd-0.1.0/kvrocks-crd-0.1.0.tgz
+    version: 0.1.0
+  kvrocks-operator:
+  - apiVersion: v2
+    appVersion: 2.25.0
+    created: "2023-10-23T03:08:28.933818813Z"
+    description: A Helm chart for kvrocks operator
+    digest: d6f6cc93d3ed4c8602fc8e2739447579e4360a5886fdc3415bec424f86fe7d67
+    name: kvrocks-operator
+    type: application
+    urls:
+    - https://github.com/RocksLabs/kvrocks-operator/releases/download/kvrocks-operator-0.1.0/kvrocks-operator-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-10-23T03:08:28.933823813Z"
