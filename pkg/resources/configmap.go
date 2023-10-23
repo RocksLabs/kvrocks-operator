@@ -8,6 +8,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
+	"github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
 )
 
 var UnChangeCfg = map[string]struct{}{
@@ -126,4 +127,33 @@ func ParseKVRocksConfigs(config map[string]string) map[string]string {
 		cfg[key] = value
 	}
 	return cfg
+}
+
+func NewKVRocksControllerConfigmap(instance *kvrocksv1alpha1.KVRocks) *corev1.ConfigMap {
+	configYAML := fmt.Sprintf(`
+addr: "0.0.0.0:%d"
+etcd:
+  addrs:
+    - "%s:%d"
+  username:
+  password:
+  tls:
+    enable: false
+    cert_file:
+    key_file:
+    ca_file:
+`, kvrocks.ControllerPort, kvrocks.EtcdServiceName, kvrocks.EtcdClientPort)
+
+	return &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "controller-config",
+			Namespace: instance.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(instance, instance.GroupVersionKind()),
+			},
+		},
+		Data: map[string]string{
+			"config.yaml": configYAML,
+		},
+	}
 }

@@ -4,14 +4,13 @@ metadata:
   name: kvrocks-cluster-1-demo
   namespace: kvrocks
   labels:
-    kvrocks/system: xx
+    kvrocks/monitored-by: sentinel-1
 spec:
-  image: apache/kvrocks:nightly # kvrocks image
+  image: apache/kvrocks  # kvrocks image
   imagePullPolicy: IfNotPresent
   master: 3
-  replicas: 3
+  replicas: 2
   type: cluster
-  enableSentinel: true
   password: "123456"
   kvrocksConfig:
     bind: "0.0.0.0"
@@ -40,9 +39,9 @@ spec:
     rocksdb.compression: "no"
     rocksdb.wal_ttl_seconds: "0"
     rocksdb.wal_size_limit_mb: "0"
-#  storage:
-#    size: 32Gi
-#    class: xxxxx # storage class
+  # storage:
+  #   size: 32Gi
+  #   class: local-hostpath
 #  nodeSelector:
 #    role: kvrocks
   toleration:

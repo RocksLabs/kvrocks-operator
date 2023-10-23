@@ -35,6 +35,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
+	controllerClient "github.com/RocksLabs/kvrocks-operator/pkg/client/controller"
 	k8s "github.com/RocksLabs/kvrocks-operator/pkg/client/k8s"
 	kv "github.com/RocksLabs/kvrocks-operator/pkg/client/kvrocks"
 	"github.com/RocksLabs/kvrocks-operator/pkg/controllers/cluster"
@@ -58,18 +59,19 @@ type KVRocksReconciler struct {
 	once   sync.Once
 }
 
-//+kubebuilder:rbac:groups=kvrocks.apache.org,resources=kvrocks,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=kvrocks.apache.org,resources=kvrocks/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=kvrocks.apache.org,resources=kvrocks/finalizers,verbs=update
-//+kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=core,resources=nodes,verbs=get;list;watch
-//+kubebuilder:rbac:groups=core,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=core,resources=secret,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=core,resources=services,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=core,resources=persistentvolumeclaims,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=apps.kruise.io,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=kvrocks.apache.org,resources=kvrocks,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=kvrocks.apache.org,resources=kvrocks/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=kvrocks.apache.org,resources=kvrocks/finalizers,verbs=update
+// +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core,resources=nodes,verbs=get;list;watch
+// +kubebuilder:rbac:groups=core,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core,resources=secret,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core,resources=services,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core,resources=persistentvolumeclaims,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=apps.kruise.io,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=apps,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -84,6 +86,7 @@ func (r *KVRocksReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	log := r.Log.WithName(req.NamespacedName.String())
 	k8sClient := k8s.NewK8sClient(r.Client, log)
 	kvClient := kv.NewKVRocksClient(log)
+	controllerClient := controllerClient.NewClient(log)
 	instance, err := k8sClient.GetKVRocks(req.NamespacedName)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -92,7 +95,7 @@ func (r *KVRocksReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, err
 	}
 	r.once.Do(func() {
-		event := events.NewEvent(k8sClient, kvClient, log)
+		event := events.NewEvent(k8sClient, kvClient, controllerClient, log)
 		go event.Run()
 	})
 	var handler KVRocksHandler
@@ -102,7 +105,7 @@ func (r *KVRocksReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	case kvrocksv1alpha1.StandardType:
 		handler = standard.NewKVRocksStandardHandler(k8sClient, kvClient, log, req.NamespacedName, instance)
 	case kvrocksv1alpha1.ClusterType:
-		handler = cluster.NewKVRocksClusterHandler(k8sClient, kvClient, log, req.NamespacedName, instance)
+		handler = cluster.NewKVRocksClusterHandler(k8sClient, kvClient, log, req.NamespacedName, instance, controllerClient)
 	}
 	// delete
 	if instance.GetDeletionTimestamp() != nil {
@@ -191,10 +194,11 @@ func shouldNotRetry(err error) bool {
 
 func runIfInitialize(instance *kvrocksv1alpha1.KVRocks, log logr.Logger, k8sClient *k8s.Client) error {
 	labels := resources.MergeLabels(instance.Labels, resources.SelectorLabels(instance))
-	if instance.Spec.Type == kvrocksv1alpha1.ClusterType {
-		sysId, _ := resources.ParseRedisName(instance.Name)
-		labels = resources.MergeLabels(labels, resources.MonitorLabels(resources.GetSentinelName(sysId)))
-	}
+	// todo each cluster has a unique sentinel cluster
+	// if instance.Spec.Type == kvrocksv1alpha1.ClusterType {
+	// 	sysId, _ := resources.ParseRedisName(instance.Name)
+	// 	labels = resources.MergeLabels(labels, resources.MonitorLabels(resources.GetSentinelName(sysId)))
+	// }
 	if instance.Spec.Type == kvrocksv1alpha1.SentinelType {
 		labels = resources.MergeLabels(labels, resources.SentinelLabels())
 	}
@@ -204,11 +208,6 @@ func runIfInitialize(instance *kvrocksv1alpha1.KVRocks, log logr.Logger, k8sClie
 			return err
 		}
 	}
-	// TODO wait for the relase of cluster mode
-	// if instance.Spec.Type == kvrocksv1alpha1.ClusterType && !instance.Spec.SentinelConfig.EnableSentinel {
-	// 	instance.Spec.SentinelConfig.EnableSentinel = true
-	// 	return k8sClient.UpdateKVRocks(instance)
-	// }
 	if instance.Status.Status == kvrocksv1alpha1.StatusNone {
 		log.Info("kvrocks is creating")
 		instance.Status.Status = kvrocksv1alpha1.StatusCreating

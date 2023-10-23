@@ -1,7 +1,6 @@
 package events
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 	"time"
@@ -16,6 +15,7 @@ import (
 )
 
 const ErrNoSuitableSlaver = "ErrNoSuitableSlaver"
+const ErrNoMaster = "ErrNoMaster"
 
 func (e *event) sentDownMessage(msg *produceMessage) {
 	pubsub, finalize := e.kvrocks.SubOdownMsg(msg.ip, msg.password)
@@ -85,9 +85,16 @@ func (e *event) handleFailover(msg *eventMessage) {
 	}
 	commHandler := common.NewCommandHandler(instance, e.k8s, e.kvrocks, instance.Spec.Password)
 
-	// only one node, set instance fail
-	if len(instance.Status.Topo[msg.partition].Topology) == 1 {
-		e.log.Error(errors.New(ErrNoSuitableSlaver), "this instance doesn't have slaves")
+	err = e.controller.SetEndPoint(instance.Namespace, e.k8s)
+	if err != nil {
+		e.log.Error(err, "set endpoint failed", "instance", msg.key, "partition", msg.partition)
+		return
+	}
+
+	// handle failover shard
+	err = e.controller.FailoverShard(msg.partition)
+	if err != nil {
+		e.log.Error(err, "failover shard failed", "instance", msg.key, "partition", msg.partition)
 		instance.Status = kvrocksv1alpha1.KVRocksStatus{
 			Status: kvrocksv1alpha1.StatusFailed,
 			Reason: ErrNoSuitableSlaver,
@@ -97,98 +104,68 @@ func (e *event) handleFailover(msg *eventMessage) {
 		}
 		return
 	}
-	// handle failover
-	failover := false
-	// slaves ip
-	nodeIps := map[string]int{}
-	oldMasterIndex := 0
-	var newMasterIP *string
-	for index, topo := range instance.Status.Topo[msg.partition].Topology {
+
+	isMasterFailover := false
+	for _, topo := range instance.Status.Topo[msg.partition].Topology {
 		if topo.Failover {
 			continue
 		}
 		if topo.Ip == msg.ip {
-			if topo.Role == kvrocks.RoleSlaver {
-				instance.Status.Topo[msg.partition].Topology[index].Failover = true
-				err = e.k8s.UpdateKVRocks(instance)
-				return
+			if topo.Role == kvrocks.RoleMaster {
+				isMasterFailover = true
 			}
-			failover = true
-			oldMasterIndex = index
-			continue
+			break
 		}
-		nodeIps[topo.Ip] = index
 	}
-	if failover {
+	if isMasterFailover {
 		// sentinel remove monitor
 		_, masterName := resources.ParseRedisName(msg.key.Name)
 		commHandler.RemoveMonitor(masterName, msg.partition)
-		newMasterIP = e.findNewMaster(nodeIps, instance.Spec.Password)
-		// can't find suitable slave
-		if newMasterIP == nil {
-			//filover timeout
-			if time.Since(msg.timeout) >= 0 {
-				e.log.Error(errors.New(ErrNoSuitableSlaver), "this instance doesn't have slaves")
-				instance.Status = kvrocksv1alpha1.KVRocksStatus{
-					Status: kvrocksv1alpha1.StatusFailed,
-					Reason: ErrNoSuitableSlaver,
-				}
-				err = e.k8s.UpdateKVRocks(instance)
-			}
-			return
-		}
-		newMasterIndex := nodeIps[*newMasterIP]
-		oldMaster := instance.Status.Topo[msg.partition].Topology[oldMasterIndex]
-		newMaster := instance.Status.Topo[msg.partition].Topology[newMasterIndex]
-		for index, topo := range instance.Status.Topo[msg.partition].Topology {
-			if topo.NodeId == newMaster.NodeId {
-				instance.Status.Topo[msg.partition].Topology[index] = kvrocksv1alpha1.KVRocksTopology{
-					Pod:      newMaster.Pod,
-					Role:     kvrocks.RoleMaster,
-					NodeId:   newMaster.NodeId,
-					Ip:       newMaster.Ip,
-					Port:     kvrocks.KVRocksPort,
-					Slots:    oldMaster.Slots,
-					Migrate:  oldMaster.Migrate,
-					Import:   oldMaster.Import,
-					Failover: false,
-				}
-			} else {
-				instance.Status.Topo[msg.partition].Topology[index] = kvrocksv1alpha1.KVRocksTopology{
-					Role:     kvrocks.RoleSlaver,
-					MasterId: newMaster.NodeId,
-					Port:     kvrocks.KVRocksPort,
-					Pod:      topo.Pod,
-					Failover: false,
-					NodeId:   topo.NodeId,
-					Ip:       topo.Ip,
-				}
-				if topo.NodeId == oldMaster.NodeId {
-					instance.Status.Topo[msg.partition].Topology[index].Failover = true
-				}
-			}
-		}
-		instance.Status.Version++
-		err = e.k8s.UpdateKVRocks(instance)
-		if err != nil {
-			return
-		}
-		_, err = commHandler.EnsureTopo()
 	}
-}
 
-func (e *event) findNewMaster(ips map[string]int, password string) *string {
-	max := 0
-	var slaveIp *string
-	for ip := range ips {
-		offset, err := e.kvrocks.GetOffset(ip, password)
-		if err != nil || offset == -1 {
-			return nil
-		}
-		if offset > max {
-			max = offset
-			slaveIp = &ip
+	// update topology
+	shardData, err := e.controller.GetNodes(msg.partition)
+	if err != nil {
+		return
+	}
+
+	// find new masterID
+	masterID := ""
+	for _, node := range shardData.Nodes {
+		if node.Role == kvrocks.RoleMaster {
+			masterID = node.ID
+			break
 		}
 	}
-	return slaveIp
+	if masterID == "" {
+		e.log.Error(err, "no master found in instance", msg.key, "partition", msg.partition)
+		instance.Status = kvrocksv1alpha1.KVRocksStatus{
+			Status: kvrocksv1alpha1.StatusFailed,
+			Reason: ErrNoMaster,
+		}
+		if err = e.k8s.UpdateKVRocks(instance); err == nil {
+			requeue = false
+		}
+		return
+	}
+
+	for index, topo := range instance.Status.Topo[msg.partition].Topology {
+		for _, node := range shardData.Nodes {
+			if topo.NodeId == node.ID {
+				instance.Status.Topo[msg.partition].Topology[index].Failover = false
+				instance.Status.Topo[msg.partition].Topology[index].Role = node.Role
+				if node.Role == kvrocks.RoleSlaver {
+					instance.Status.Topo[msg.partition].Topology[index].MasterId = masterID
+				}
+			}
+			if topo.Ip == msg.ip {
+				instance.Status.Topo[msg.partition].Topology[index].Failover = true
+			}
+		}
+	}
+	instance.Status.Version++
+	err = e.k8s.UpdateKVRocks(instance)
+	if err != nil {
+		return
+	}
 }

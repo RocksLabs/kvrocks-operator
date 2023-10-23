@@ -1,7 +1,10 @@
 package cluster
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/types"
 
@@ -17,9 +20,6 @@ func (h *KVRocksClusterHandler) ensureKVRocksStatus() error {
 	if err = h.ensureKVRocksConfig(); err != nil {
 		return err
 	}
-	if err = h.ensureSetNodeID(); err != nil {
-		return err
-	}
 	if h.instance.Status.Status == kvrocksv1alpha1.StatusCreating {
 		if err = h.initCluster(); err != nil {
 			return err
@@ -29,12 +29,14 @@ func (h *KVRocksClusterHandler) ensureKVRocksStatus() error {
 			return err
 		}
 	}
+	h.requeue, err = h.ensureCluster()
+	if err != nil {
+		return err
+	}
 	h.ensureVersion()
 	if err = h.ensureStatusTopoMsg(); err != nil {
 		return err
 	}
-	commHandler := common.NewCommandHandler(h.instance, h.k8s, h.kvrocks, h.password)
-	h.requeue, err = commHandler.EnsureTopo()
 	h.version = h.instance.Status.Version
 	return err
 }
@@ -55,42 +57,13 @@ func (h *KVRocksClusterHandler) ensureKVRocksConfig() error {
 	return nil
 }
 
-func (h *KVRocksClusterHandler) ensureSetNodeID() error {
-	for _, sts := range h.stsNodes {
-		for _, node := range sts {
-			if node.NodeId == "" {
-				node.NodeId = resources.SetClusterNodeId()
-			}
-			// pod restart, reset nodeID
-			if err := h.kvrocks.SetClusterID(node.IP, h.password, node.NodeId); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
 func (h *KVRocksClusterHandler) initCluster() error {
-	slotsPreNode := kvrocks.HashSlotCount / h.instance.Spec.Master
-	slotsRem := kvrocks.HashSlotCount % h.instance.Spec.Master
-	allocated := 0
-	for index, sts := range h.stsNodes {
-		expected := slotsPreNode
-		if index < int(slotsRem) {
-			expected++
-		}
-		slots := make([]int, expected)
-		for i := 0; i < int(expected); i++ {
-			slots[i] = allocated
-			allocated++
-		}
-		sts[0].Slots = slots
+	for _, sts := range h.stsNodes {
 		sts[0].Role = kvrocks.RoleMaster
 	}
 	for partition, sts := range h.stsNodes {
 		for index, node := range sts {
 			if index != 0 {
-				node.Master = sts[0].NodeId
 				node.Role = kvrocks.RoleSlaver
 			}
 			key := types.NamespacedName{
@@ -194,8 +167,9 @@ func (h *KVRocksClusterHandler) ensureFailover() error {
 	}
 	if change {
 		h.version++
+		return h.ensureStatusTopoMsg()
 	}
-	return h.ensureStatusTopoMsg()
+	return nil
 }
 
 func (h *KVRocksClusterHandler) updatePodLabels(key types.NamespacedName, role string) error {
@@ -210,4 +184,156 @@ func (h *KVRocksClusterHandler) updatePodLabels(key types.NamespacedName, role s
 		}
 	}
 	return nil
+}
+
+func (h *KVRocksClusterHandler) ensureCluster() (bool, error) {
+	nodes := make([]string, 0)
+	for _, sts := range h.stsNodes {
+		for _, node := range sts {
+			nodes = append(nodes, node.IP+":"+strconv.Itoa(kvrocks.KVRocksPort))
+		}
+	}
+	if h.instance.Status.Status == kvrocksv1alpha1.StatusCreating {
+		err := h.controllerClient.CreateCluster(int(h.instance.Spec.Replicas), nodes, h.password)
+		if err != nil {
+			return false, err
+		}
+	} else {
+		err := h.updateCluster()
+		if err != nil {
+			return false, err
+		}
+	}
+	err := h.ensureSetNodeID()
+	if err != nil {
+		return false, err
+	}
+	if h.instance.Status.Status != kvrocksv1alpha1.StatusRunning {
+		h.instance.Status.Status = kvrocksv1alpha1.StatusRunning
+	}
+	if err := h.k8s.UpdateKVRocks(h.instance); err != nil {
+		return true, err
+	}
+	return false, nil
+}
+
+func (h *KVRocksClusterHandler) ensureSetNodeID() error {
+	for index, sts := range h.stsNodes {
+		shardData, err := h.controllerClient.GetNodes(index)
+		if err != nil {
+			return err
+		}
+		masterID := ""
+		for _, shard := range shardData.Nodes {
+			if shard.Role == "master" {
+				masterID = shard.ID
+				break
+			}
+		}
+		if masterID == "" {
+			h.log.V(1).Error(errors.New("master error"), "no master node in shard", "shard", index)
+			return fmt.Errorf("no master node in shard %d", index)
+		}
+		for _, node := range sts {
+			for _, shard := range shardData.Nodes {
+				if simplyIp(shard.Addr) == node.IP {
+					node.NodeId = shard.ID
+					if shard.Role == "master" {
+						node.Role = kvrocks.RoleMaster
+						node.Master = ""
+						node.Slots = kvrocks.SlotsToInt(shardData.SlotRanges)
+					} else {
+						node.Role = kvrocks.RoleSlaver
+						node.Master = masterID
+						node.Slots = kvrocks.SlotsToInt(shardData.SlotRanges)
+					}
+					break
+				}
+			}
+			key := types.NamespacedName{
+				Namespace: h.instance.GetNamespace(),
+				Name:      fmt.Sprintf("%s-%d", resources.GetStatefulSetName(h.instance.GetName(), index), node.PodIndex),
+			}
+			if err := h.updatePodLabels(key, node.Role); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (h *KVRocksClusterHandler) updateCluster() error {
+	//remove node
+	for index, sts := range h.stsNodes {
+		shardData, err := h.controllerClient.GetNodes(index)
+		if err != nil {
+			return err
+		}
+		// the shard need to be created
+		if shardData == nil {
+			nodes := make([]string, 0)
+			for _, node := range sts {
+				nodes = append(nodes, node.IP+":"+strconv.Itoa(kvrocks.KVRocksPort))
+			}
+			err := h.controllerClient.CreateShard(nodes, h.password)
+			if err != nil {
+				return err
+			}
+			continue
+		}
+		for _, shard := range shardData.Nodes {
+			needDeleted := true
+			for _, node := range sts {
+				if simplyIp(shard.Addr) == node.IP {
+					needDeleted = false
+					break
+				}
+			}
+			if needDeleted {
+				if err := h.controllerClient.DeleteNode(index, shard.ID); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	// add node
+	for index, sts := range h.stsNodes {
+		shardData, err := h.controllerClient.GetNodes(index)
+		if err != nil {
+			return err
+		}
+		for _, node := range sts {
+			needAdded := true
+			for _, shard := range shardData.Nodes {
+				if simplyIp(shard.Addr) == node.IP {
+					needAdded = false
+					break
+				}
+			}
+			if needAdded {
+				err = h.controllerClient.AddNode(index, node.IP+":"+strconv.Itoa(kvrocks.KVRocksPort), node.Role, h.password)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	// delete shard
+	shards, err := h.controllerClient.GetShards()
+	if err != nil {
+		return err
+	}
+	// TODO delete shard by any index
+	for i := len(shards) - 1; i >= len(h.stsNodes); i-- {
+		if err := h.controllerClient.DeleteShard(i); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func simplyIp(ip string) string {
+	return strings.Split(ip, ":")[0]
 }
