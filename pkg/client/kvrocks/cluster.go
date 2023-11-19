@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-func (s *Client) ClusterNodeInfo(ip, password string) (*Node, error) {
+func (s *client) ClusterNodeInfo(ip, password string) (*Node, error) {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	info, err := c.ClusterNodes(ctx).Result()

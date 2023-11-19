@@ -3,7 +3,7 @@ package k8s
 import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
 )
@@ -26,7 +26,7 @@ func (c *Client) UpdateKVRocks(instance *kvrocksv1alpha1.KVRocks) error {
 
 func (c *Client) ListKVRocks(namespace string, labels map[string]string) (*kvrocksv1alpha1.KVRocksList, error) {
 	var kvrockses kvrocksv1alpha1.KVRocksList
-	if err := c.client.List(ctx, &kvrockses, client.InNamespace(namespace), client.MatchingLabels(labels)); err != nil {
+	if err := c.client.List(ctx, &kvrockses, k8sApiClient.InNamespace(namespace), k8sApiClient.MatchingLabels(labels)); err != nil {
 		return nil, err
 	}
 	return &kvrockses, nil

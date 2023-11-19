@@ -2,6 +2,8 @@ package k8s
 
 import (
 	"context"
+	"testing"
+
 	kvrocksv1alpha1 "github.com/RocksLabs/kvrocks-operator/api/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -9,9 +11,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-	"testing"
 )
 
 func TestGetKVRocks(t *testing.T) {
@@ -46,7 +47,7 @@ func TestGetKVRocks(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			var objs []client.Object
+			var objs []k8sApiClient.Object
 			if test.existingKVRocks != nil {
 				objs = append(objs, test.existingKVRocks)
 			}
@@ -104,7 +105,7 @@ func TestUpdateKVRocks(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			if test.existingKVRocks != nil {
 				objs = append(objs, test.existingKVRocks)
 			}
@@ -195,7 +196,7 @@ func TestListKVRocks(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, len(test.kvrocks))
+			objs := make([]k8sApiClient.Object, len(test.kvrocks))
 			for i, kvrocks := range test.kvrocks {
 				objs[i] = kvrocks
 			}
@@ -250,7 +251,7 @@ func TestCreateIfNotExistsKVRocks(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, 0)
+			objs := make([]k8sApiClient.Object, 0)
 			if test.existingKVRocks != nil {
 				objs = append(objs, test.existingKVRocks)
 			}
@@ -265,7 +266,7 @@ func TestCreateIfNotExistsKVRocks(t *testing.T) {
 			} else {
 				assert.NoError(err)
 				createdKVRocks := &kvrocksv1alpha1.KVRocks{}
-				err := fakeClient.Get(context.Background(), client.ObjectKey{
+				err := fakeClient.Get(context.Background(), k8sApiClient.ObjectKey{
 					Namespace: test.kvrocks.Namespace,
 					Name:      test.kvrocks.Name,
 				}, createdKVRocks)

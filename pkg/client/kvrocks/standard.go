@@ -8,13 +8,14 @@ import (
 	"strings"
 	"time"
 
-	client "github.com/go-redis/redis/v8"
+	redisClient "github.com/go-redis/redis/v8"
 )
 
-func (s *Client) NodeInfo(ip, password string) (node Node, err error) {
+// NodeInfo returns the node info
+func (s *client) NodeInfo(ip, password string) (node Node, err error) {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
-	cmd := client.NewSliceCmd(ctx, "ROLE")
+	cmd := redisClient.NewSliceCmd(ctx, "ROLE")
 	c.Process(ctx, cmd)
 	resp, err := cmd.Result()
 	if err != nil || len(resp) == 0 {
@@ -26,7 +27,8 @@ func (s *Client) NodeInfo(ip, password string) (node Node, err error) {
 	return
 }
 
-func (s *Client) GetConfig(ip, password, key string) (*string, error) {
+// GetConfig returns the config value
+func (s *client) GetConfig(ip, password, key string) (*string, error) {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	value, err := c.ConfigGet(ctx, key).Result()
@@ -40,7 +42,8 @@ func (s *Client) GetConfig(ip, password, key string) (*string, error) {
 	return &result, nil
 }
 
-func (s *Client) SetConfig(ip, password string, key, value string) error {
+// SetConfig sets a single config in key value format
+func (s *client) SetConfig(ip, password string, key, value string) error {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	if err := c.ConfigSet(ctx, key, value).Err(); err != nil {
@@ -50,7 +53,8 @@ func (s *Client) SetConfig(ip, password string, key, value string) error {
 	return nil
 }
 
-func (s *Client) ChangePassword(ip, password, newPassword string) error {
+// ChangePassword changes the password
+func (s *client) ChangePassword(ip, password, newPassword string) error {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	pipe := c.Pipeline()
@@ -64,7 +68,8 @@ func (s *Client) ChangePassword(ip, password, newPassword string) error {
 	return nil
 }
 
-func (s *Client) ChangeMyselfToMaster(ip, password string) error {
+// ChangeMyselfToMaster changes the current node to master
+func (s *client) ChangeMyselfToMaster(ip, password string) error {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	if err := c.SlaveOf(ctx, "NO", "ONE").Err(); err != nil {
@@ -74,7 +79,8 @@ func (s *Client) ChangeMyselfToMaster(ip, password string) error {
 	return nil
 }
 
-func (s *Client) GetMaster(ip, password string) (string, error) {
+// GetMaster returns the master ip
+func (s *client) GetMaster(ip, password string) (string, error) {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	info, err := c.Info(ctx, "replication").Result()
@@ -90,7 +96,8 @@ func (s *Client) GetMaster(ip, password string) (string, error) {
 	return master, nil
 }
 
-func (s *Client) SlaveOf(slaveIP, masterIP, password string) error {
+// SlaveOf sets the slave of the specified master
+func (s *client) SlaveOf(slaveIP, masterIP, password string) error {
 	c := kvrocksClient(slaveIP, password)
 	defer c.Close()
 	if err := c.SlaveOf(ctx, masterIP, strconv.Itoa(KVRocksPort)).Err(); err != nil {
@@ -100,7 +107,8 @@ func (s *Client) SlaveOf(slaveIP, masterIP, password string) error {
 	return nil
 }
 
-func (s *Client) GetOffset(ip, password string) (int, error) {
+// GetOffset returns the replication offset
+func (s *client) GetOffset(ip, password string) (int, error) {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	msg, err := c.Info(ctx, "replication").Result()
@@ -117,7 +125,8 @@ func (s *Client) GetOffset(ip, password string) (int, error) {
 	return -1, nil
 }
 
-func (s *Client) Ping(ip, password string) bool {
+// Ping checks if the node is alive
+func (s *client) Ping(ip, password string) bool {
 	c := kvrocksClient(ip, password)
 	defer c.Close()
 	timeout, cancel := context.WithTimeout(ctx, time.Second*1)

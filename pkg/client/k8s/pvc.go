@@ -4,7 +4,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func (c *Client) ListStatefulSetPVC(key types.NamespacedName) (*corev1.PersistentVolumeClaimList, error) {
@@ -14,7 +14,7 @@ func (c *Client) ListStatefulSetPVC(key types.NamespacedName) (*corev1.Persisten
 	}
 	labels := sts.Spec.Selector.MatchLabels
 	var pvcList corev1.PersistentVolumeClaimList
-	if err = c.client.List(ctx, &pvcList, client.InNamespace(key.Namespace), client.MatchingLabels(labels)); err != nil {
+	if err = c.client.List(ctx, &pvcList, k8sApiClient.InNamespace(key.Namespace), k8sApiClient.MatchingLabels(labels)); err != nil {
 		return nil, err
 	}
 	return &pvcList, nil
@@ -30,7 +30,7 @@ func (c *Client) DeletePVC(pvc *corev1.PersistentVolumeClaim) error {
 
 func (c *Client) ListPVC(namespace string, labels map[string]string) (*corev1.PersistentVolumeClaimList, error) {
 	var pvcList corev1.PersistentVolumeClaimList
-	if err := c.client.List(ctx, &pvcList, client.InNamespace(namespace), client.MatchingLabels(labels)); err != nil {
+	if err := c.client.List(ctx, &pvcList, k8sApiClient.InNamespace(namespace), k8sApiClient.MatchingLabels(labels)); err != nil {
 		return nil, err
 	}
 	return &pvcList, nil

@@ -13,7 +13,7 @@ type KVRocksSentinelHandler struct {
 	instance *kvrocksv1alpha1.KVRocks
 	key      types.NamespacedName
 	k8s      *k8s.Client
-	kvrocks  *kvrocks.Client
+	kvrocks  kvrocks.Client
 	log      logr.Logger
 	pods     []string
 	requeue  bool
@@ -21,10 +21,11 @@ type KVRocksSentinelHandler struct {
 
 func NewKVRocksSentinelHandler(
 	k8s *k8s.Client,
-	kvrocks *kvrocks.Client,
+	kvrocks kvrocks.Client,
 	logger logr.Logger,
 	key types.NamespacedName,
-	instance *kvrocksv1alpha1.KVRocks) *KVRocksSentinelHandler {
+	instance *kvrocksv1alpha1.KVRocks,
+) *KVRocksSentinelHandler {
 	return &KVRocksSentinelHandler{
 		instance: instance,
 		k8s:      k8s,

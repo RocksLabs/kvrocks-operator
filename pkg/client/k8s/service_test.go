@@ -1,15 +1,16 @@
 package k8s
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-	"testing"
 )
 
 func TestCreateIfNotExistsService(t *testing.T) {
@@ -45,7 +46,7 @@ func TestCreateIfNotExistsService(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := []client.Object{}
+			objs := []k8sApiClient.Object{}
 			if test.existingService != nil {
 				objs = append(objs, test.existingService)
 			}

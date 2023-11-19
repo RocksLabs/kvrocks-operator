@@ -28,7 +28,7 @@ import (
 var (
 	env           *KubernetesEnv
 	ctx           context.Context
-	kvrocksClient *kvrocks.Client
+	kvrocksClient kvrocks.Client
 )
 
 var _ = BeforeSuite(func() {
@@ -132,7 +132,6 @@ var _ = Describe("Operator for Cluster Mode", func() {
 	})
 
 	It("test recover when slave down", func() {
-
 		var pod corev1.Pod
 		key := types.NamespacedName{
 			Namespace: kvrocksInstance.GetNamespace(),
@@ -173,7 +172,6 @@ var _ = Describe("Operator for Cluster Mode", func() {
 	})
 
 	It("test recover when master down", func() {
-
 		var pod corev1.Pod
 		key := types.NamespacedName{
 			Namespace: kvrocksInstance.GetNamespace(),
@@ -304,7 +302,6 @@ var _ = Describe("Operator for Cluster Mode", func() {
 			return checkKvrocksCluster(kvrocksKey, sentinelKey)
 		}, timeout, interval).Should(Succeed())
 	})
-
 })
 
 func checkKvrocksCluster(kvrocksKey, sentinelKey types.NamespacedName) error {

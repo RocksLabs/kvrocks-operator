@@ -9,11 +9,11 @@ import (
 type CommandHandler struct {
 	instance *kvrocksv1alpha1.KVRocks
 	k8s      *k8s.Client
-	kvrocks  *kvrocks.Client
+	kvrocks  kvrocks.Client
 	password string
 }
 
-func NewCommandHandler(instance *kvrocksv1alpha1.KVRocks, k8s *k8s.Client, kvrocks *kvrocks.Client, password string) *CommandHandler {
+func NewCommandHandler(instance *kvrocksv1alpha1.KVRocks, k8s *k8s.Client, kvrocks kvrocks.Client, password string) *CommandHandler {
 	return &CommandHandler{
 		instance: instance,
 		k8s:      k8s,

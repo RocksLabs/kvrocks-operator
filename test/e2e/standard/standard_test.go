@@ -22,14 +22,14 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 var (
 	env           *KubernetesEnv
 	ctx           context.Context
-	kvrocksClient *kvrocks.Client
+	kvrocksClient kvrocks.Client
 )
 
 var _ = BeforeSuite(func() {
@@ -252,7 +252,6 @@ var _ = Describe("Operator for Standard Mode", func() {
 			return checkKVRocks(kvrocksInstance, sentinelInstance)
 		}, timeout, interval).Should(Succeed())
 	})
-
 })
 
 func checkKVRocks(kvrocksInstance, sentinelInstance *kvrocksv1alpha1.KVRocks) error {
@@ -323,7 +322,7 @@ func checkKVRocks(kvrocksInstance, sentinelInstance *kvrocksv1alpha1.KVRocks) er
 	}
 
 	var pvcList corev1.PersistentVolumeClaimList
-	if err := env.Client.List(ctx, &pvcList, client.InNamespace(kvrocksInstance.Namespace), client.MatchingLabels(kvrocksInstance.Labels)); err != nil {
+	if err := env.Client.List(ctx, &pvcList, k8sApiClient.InNamespace(kvrocksInstance.Namespace), k8sApiClient.MatchingLabels(kvrocksInstance.Labels)); err != nil {
 		return err
 	}
 	if len(pvcList.Items) != replicas {
@@ -345,9 +344,9 @@ func getSentinelPodList(sentinel *kvrocksv1alpha1.KVRocks) (*corev1.PodList, err
 
 	labelSelector := labels.Set(deployment.Spec.Selector.MatchLabels).AsSelector()
 	podList := &corev1.PodList{}
-	listOpts := []client.ListOption{
-		client.InNamespace(sentinel.Namespace),
-		client.MatchingLabelsSelector{Selector: labelSelector},
+	listOpts := []k8sApiClient.ListOption{
+		k8sApiClient.InNamespace(sentinel.Namespace),
+		k8sApiClient.MatchingLabelsSelector{Selector: labelSelector},
 	}
 	if err := env.Client.List(ctx, podList, listOpts...); err != nil {
 		return nil, err

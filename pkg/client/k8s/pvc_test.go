@@ -1,6 +1,8 @@
 package k8s
 
 import (
+	"testing"
+
 	kruise "github.com/openkruise/kruise-api/apps/v1beta1"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
@@ -9,9 +11,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-	"testing"
 )
 
 func TestListStatefulSetPVC(t *testing.T) {
@@ -68,7 +69,7 @@ func TestListStatefulSetPVC(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			var objs []client.Object
+			var objs []k8sApiClient.Object
 			if test.existingSTS != nil {
 				objs = append(objs, test.existingSTS)
 			}
@@ -129,7 +130,7 @@ func TestDeletePVC(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			var objs []client.Object
+			var objs []k8sApiClient.Object
 			if test.existingPVC != nil {
 				objs = append(objs, test.existingPVC)
 			}
@@ -217,7 +218,7 @@ func TestListPVC(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := make([]client.Object, len(test.existingPVCs))
+			objs := make([]k8sApiClient.Object, len(test.existingPVCs))
 			for i, pvc := range test.existingPVCs {
 				objs[i] = pvc
 			}
@@ -270,7 +271,7 @@ func TestDeletePVCByPod(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			objs := []client.Object{}
+			objs := []k8sApiClient.Object{}
 			if test.existingPVC != nil {
 				objs = append(objs, test.existingPVC)
 			}

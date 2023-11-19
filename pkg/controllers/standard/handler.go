@@ -14,7 +14,7 @@ import (
 type KVRocksStandardHandler struct {
 	instance *kvrocksv1alpha1.KVRocks
 	k8s      *k8s.Client
-	kvrocks  *kvrocks.Client
+	kvrocks  kvrocks.Client
 	log      logr.Logger
 	password string
 	stsNodes []*kvrocks.Node
@@ -24,10 +24,11 @@ type KVRocksStandardHandler struct {
 
 func NewKVRocksStandardHandler(
 	k8s *k8s.Client,
-	kvrocks *kvrocks.Client,
+	kvrocks kvrocks.Client,
 	log logr.Logger,
 	key types.NamespacedName,
-	instance *kvrocksv1alpha1.KVRocks) *KVRocksStandardHandler {
+	instance *kvrocksv1alpha1.KVRocks,
+) *KVRocksStandardHandler {
 	return &KVRocksStandardHandler{
 		instance: instance,
 		k8s:      k8s,

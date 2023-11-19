@@ -2,6 +2,8 @@ package k8s
 
 import (
 	"context"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	kubeerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -9,9 +11,8 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sApiClient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-	"testing"
 )
 
 func TestGetConfigMap(t *testing.T) {
@@ -46,7 +47,7 @@ func TestGetConfigMap(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			var objs []client.Object
+			var objs []k8sApiClient.Object
 			if test.existingCM != nil {
 				objs = append(objs, test.existingCM)
 			}
@@ -70,6 +71,7 @@ func TestGetConfigMap(t *testing.T) {
 		})
 	}
 }
+
 func TestUpdateConfigMap(t *testing.T) {
 	ns, updatedKey, updatedValue := "unit-test", "key1", "value2"
 	testConfigMap := &corev1.ConfigMap{
@@ -110,7 +112,7 @@ func TestUpdateConfigMap(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			var objs []client.Object
+			var objs []k8sApiClient.Object
 			if test.existingCM != nil {
 				objs = append(objs, test.existingCM)
 			}
@@ -133,8 +135,8 @@ func TestUpdateConfigMap(t *testing.T) {
 			}
 		})
 	}
-
 }
+
 func TestCreateOrUpdateConfigMap(t *testing.T) {
 	ns := "unit-test"
 
@@ -168,7 +170,7 @@ func TestCreateOrUpdateConfigMap(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			var objs []client.Object
+			var objs []k8sApiClient.Object
 			if test.existingCM != nil {
 				objs = append(objs, test.existingCM)
 			}
@@ -184,13 +186,14 @@ func TestCreateOrUpdateConfigMap(t *testing.T) {
 				assert.NoError(err)
 
 				cm := &corev1.ConfigMap{}
-				err = fakeClient.Get(context.TODO(), client.ObjectKey{Namespace: ns, Name: test.configMap.Name}, cm)
+				err = fakeClient.Get(context.TODO(), k8sApiClient.ObjectKey{Namespace: ns, Name: test.configMap.Name}, cm)
 				assert.NoError(err)
 				assert.Equal(test.configMap.ResourceVersion, cm.ResourceVersion)
 			}
 		})
 	}
 }
+
 func TestCreateIfNotExistsConfigMap(t *testing.T) {
 	ns := "unit-test"
 	testConfigMap := &corev1.ConfigMap{
@@ -223,7 +226,7 @@ func TestCreateIfNotExistsConfigMap(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			var objs []client.Object
+			var objs []k8sApiClient.Object
 			if test.existingCM != nil {
 				objs = append(objs, test.existingCM)
 			}
@@ -238,7 +241,7 @@ func TestCreateIfNotExistsConfigMap(t *testing.T) {
 				assert.NoError(err)
 
 				cm := &corev1.ConfigMap{}
-				err = fakeClient.Get(context.TODO(), client.ObjectKey{Namespace: ns, Name: test.configMap.Name}, cm)
+				err = fakeClient.Get(context.TODO(), k8sApiClient.ObjectKey{Namespace: ns, Name: test.configMap.Name}, cm)
 				assert.NoError(err)
 				assert.Equal(test.configMap.Name, cm.Name)
 			}
