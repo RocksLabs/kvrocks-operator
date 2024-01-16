@@ -35,6 +35,8 @@ func (h *KVRocksSentinelHandler) ensureKubernetes() error {
 	if err != nil {
 		return err
 	}
+
+	h.pods = []string{}
 	for _, pod := range pods.Items {
 		h.pods = append(h.pods, pod.Status.PodIP)
 	}
