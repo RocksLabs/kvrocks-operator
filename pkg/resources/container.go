@@ -23,7 +23,7 @@ func NewSentinelContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 func NewInitContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 	return &corev1.Container{
 		Name:            "init-chmod",
-		Image:           "harbor.xaminim.com/minimax-pub/busybox:latest",
+		Image:           "busybox:latest",
 		ImagePullPolicy: corev1.PullIfNotPresent,
 		Command:         []string{"/bin/sh", "-c", " mkdir -p /var/lib/kvrocks && chmod -R 777 /var/lib/kvrocks"},
 		VolumeMounts: []corev1.VolumeMount{
