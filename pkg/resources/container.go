@@ -20,6 +20,21 @@ func NewSentinelContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 	return container
 }
 
+func NewInitContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
+	return &corev1.Container{
+		Name:            "init-chmod",
+		Image:           "harbor.xaminim.com/minimax-pub/busybox:latest",
+		ImagePullPolicy: corev1.PullIfNotPresent,
+		Command:         []string{"/bin/sh", "-c", " mkdir -p /var/lib/kvrocks && chmod -R 777 /var/lib/kvrocks"},
+		VolumeMounts: []corev1.VolumeMount{
+			{
+				Name:      "data",
+				MountPath: "/var/lib/kvrocks",
+			},
+		},
+	}
+}
+
 func NewInstanceContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 	container := newKVRocksContainer(instance)
 	container.Command = []string{"sh", "/var/lib/kvrocks/conf/start.sh"}
@@ -35,7 +50,7 @@ func NewExporterContainer(instance *kvrocksv1alpha1.KVRocks) *corev1.Container {
 		Name:  "kvrocks-exporter",
 		Image: "hulkdev/kvrocks-exporter:latest",
 		Args: []string{
-			fmt.Sprintf("--kvrocks.addr=http://localhost:%s", strconv.Itoa(kvrocks.KVRocksPort)),
+			fmt.Sprintf("--kvrocks.addr=kvrocks://localhost:%s", strconv.Itoa(kvrocks.KVRocksPort)),
 			fmt.Sprintf("--kvrocks.password=%s", instance.Spec.Password),
 		},
 		Ports: []corev1.ContainerPort{

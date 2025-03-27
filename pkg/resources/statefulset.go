@@ -143,18 +143,21 @@ func getPersistentClaim(instance *kvrocksv1alpha1.KVRocks, labels map[string]str
 
 func NewSentinelStatefulSet(instance *kvrocksv1alpha1.KVRocks) *kruise.StatefulSet {
 	sts := NewStatefulSet(instance, GetStatefulSetName(instance.Name))
+	sts.Spec.Template.Spec.InitContainers = append(sts.Spec.Template.Spec.InitContainers, *NewInitContainer(instance))
 	sts.Spec.Template.Spec.Containers = append(sts.Spec.Template.Spec.Containers, *NewSentinelContainer(instance))
 	return sts
 }
 
 func NewReplicationStatefulSet(instance *kvrocksv1alpha1.KVRocks) *kruise.StatefulSet {
 	sts := NewStatefulSet(instance, GetStatefulSetName(instance.Name))
+	sts.Spec.Template.Spec.InitContainers = append(sts.Spec.Template.Spec.InitContainers, *NewInitContainer(instance))
 	sts.Spec.Template.Spec.Containers = append(sts.Spec.Template.Spec.Containers, *NewInstanceContainer(instance), *NewExporterContainer(instance))
 	return sts
 }
 
 func NewClusterStatefulSet(instance *kvrocksv1alpha1.KVRocks, index int) *kruise.StatefulSet {
 	sts := NewStatefulSet(instance, GetStatefulSetName(instance.Name, index))
+	sts.Spec.Template.Spec.InitContainers = append(sts.Spec.Template.Spec.InitContainers, *NewInitContainer(instance))
 	sts.Spec.Template.Spec.Containers = append(sts.Spec.Template.Spec.Containers, *NewInstanceContainer(instance), *NewExporterContainer(instance))
 	return sts
 }
