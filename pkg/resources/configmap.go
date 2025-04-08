@@ -94,12 +94,21 @@ func NewKVRocksConfigMap(instance *kvrocksv1alpha1.KVRocks) *corev1.ConfigMap {
 	buffer.WriteString(fmt.Sprintf("masterauth %s\n", instance.Spec.Password))
 	buffer.WriteString(fmt.Sprintf("requirepass %s\n", instance.Spec.Password))
 	buffer.WriteString("dir /var/lib/kvrocks\n")
+
 	if instance.Spec.Type == kvrocksv1alpha1.ClusterType {
 		buffer.WriteString("cluster-enabled yes\n")
+	} else {
+		if _, ok := instance.Spec.KVRocksConfig["cluster-enabled"]; ok {
+			delete(instance.Spec.KVRocksConfig, "cluster-enabled")
+		}
 	}
+
 	if instance.Spec.Type == kvrocksv1alpha1.StandardType {
-		buffer.WriteString("slaveof 127.0.0.1 6379\n")
+		if _, ok := instance.Spec.KVRocksConfig["slaveof"]; ok {
+			delete(instance.Spec.KVRocksConfig, "slaveof")
+		}
 	}
+
 	return &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instance.Name,
