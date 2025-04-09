@@ -98,15 +98,11 @@ func NewKVRocksConfigMap(instance *kvrocksv1alpha1.KVRocks) *corev1.ConfigMap {
 	if instance.Spec.Type == kvrocksv1alpha1.ClusterType {
 		buffer.WriteString("cluster-enabled yes\n")
 	} else {
-		if _, ok := instance.Spec.KVRocksConfig["cluster-enabled"]; ok {
-			delete(instance.Spec.KVRocksConfig, "cluster-enabled")
-		}
+		delete(instance.Spec.KVRocksConfig, "cluster-enabled")
 	}
 
 	if instance.Spec.Type == kvrocksv1alpha1.StandardType {
-		if _, ok := instance.Spec.KVRocksConfig["slaveof"]; ok {
-			delete(instance.Spec.KVRocksConfig, "slaveof")
-		}
+		delete(instance.Spec.KVRocksConfig, "slaveof")
 	}
 
 	return &corev1.ConfigMap{
