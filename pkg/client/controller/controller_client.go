@@ -115,7 +115,7 @@ func (c *Client) CreateIfNotExistsNamespace() error {
 		if err != nil {
 			return err
 		}
-		if errorResponse.Error.Message != "the entry already existed" {
+		if errorResponse.Error.Message != "the entry already existed" && errorResponse.Error.Message != "already exists" {
 			return errors.New(errorResponse.Error.Message)
 		} else {
 			return nil
