@@ -56,6 +56,10 @@ func (h *KVRocksStandardHandler) Handle() (error, bool) {
 	if err != nil || h.requeue {
 		return err, false
 	}
+	err = h.expandPersistentVolumeClaim()
+	if err != nil || h.requeue {
+		return err, false
+	}
 	return nil, true
 }
 
