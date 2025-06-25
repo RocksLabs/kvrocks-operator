@@ -1,6 +1,7 @@
 package standard
 
 import (
+	v1 "k8s.io/api/core/v1"
 	"sort"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -135,6 +136,23 @@ func (h *KVRocksStandardHandler) cleanPersistentVolumeClaim() error {
 		}
 		if _, ok := exitsPod[index]; !ok {
 			if err = h.k8s.DeletePVC(&pvc); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (h *KVRocksStandardHandler) expandPersistentVolumeClaim() error {
+	pvcList, err := h.k8s.ListStatefulSetPVC(h.key)
+	if err != nil {
+		return err
+	}
+	for _, pvc := range pvcList.Items {
+		pvcSize := pvc.Spec.Resources.Requests[v1.ResourceStorage]
+		if pvcSize.Cmp(h.instance.Spec.Storage.Size) < 0 {
+			pvc.Spec.Resources.Requests[v1.ResourceStorage] = h.instance.Spec.Storage.Size
+			if err := h.k8s.ExpandPVC(&pvc); err != nil {
 				return err
 			}
 		}

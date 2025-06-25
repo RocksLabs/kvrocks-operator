@@ -28,6 +28,14 @@ func (c *Client) DeletePVC(pvc *corev1.PersistentVolumeClaim) error {
 	return nil
 }
 
+func (c *Client) ExpandPVC(pvc *corev1.PersistentVolumeClaim) error {
+	if err := c.client.Update(ctx, pvc); err != nil {
+		return err
+	}
+	c.logger.V(1).Info("expand pvc size successfully", "pvc", pvc.Name)
+	return nil
+}
+
 func (c *Client) ListPVC(namespace string, labels map[string]string) (*corev1.PersistentVolumeClaimList, error) {
 	var pvcList corev1.PersistentVolumeClaimList
 	if err := c.client.List(ctx, &pvcList, k8sApiClient.InNamespace(namespace), k8sApiClient.MatchingLabels(labels)); err != nil {
