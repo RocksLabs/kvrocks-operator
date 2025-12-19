@@ -64,14 +64,19 @@ func (h *KVRocksStandardHandler) ensureKVRocksReplication() error {
 		return h.k8s.UpdateKVRocks(h.instance)
 	} else {
 		for _, node := range h.stsNodes {
+			// Force the first node to be the master.
+			// This logic is consistent with the creation process,
+			// so even if a new node is initially set as the master,
+			// it will still be forced to become a slave below.
 			if node.Role == kvrocks.RoleMaster {
 				if masterIP == "" {
 					masterIP = node.IP
-				} else if masterIP != node.IP {
-					err := errors.New("more than one master exist")
-					h.log.Error(err, "ensure redis replication failed", "master1", masterIP, "master2", node.IP)
-					return err
 				}
+				//else if masterIP != node.IP {
+				//	err := errors.New("more than one master exist")
+				//	h.log.Error(err, "ensure redis replication failed", "master1", masterIP, "master2", node.IP)
+				//	return err
+				//}
 			}
 		}
 		if masterIP == "" {
